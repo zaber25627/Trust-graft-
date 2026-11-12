@@ -1,0 +1,14 @@
+{
+  "name": "trusted-mining-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Trusted Mining backend (Node.js + Firebase Firestore) — serves both the User Panel and the Admin Panel",
+  "main": "src/server.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/e2e.js",
+    "hash-password": "node scripts/hash-password.js"
+  },
+  "dependencies": { "firebase-admin": "^12.0.0" }
+}

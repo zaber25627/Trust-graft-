@@ -1,0 +1,8 @@
+rules_version = '2';
+// All data is accessed ONLY through the backend (Firebase Admin SDK bypasses these rules).
+// Deny every direct client read/write so nobody can touch balances from a browser.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} { allow read, write: if false; }
+  }
+}
