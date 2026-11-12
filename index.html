@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#07080A"><title>Trusted Mining</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+/* ===== CONFIG: set API_BASE to your deployed backend URL (required) ===== */
+window.TM_CONFIG={API_BASE:"",BOT_USERNAME:"TrustedMiningBot"};
+</script>
+<style>
+/* ===== Trusted Mining — Black · Titanium Silver · Orange ===== */
+:root{
+  --bg:#07080A;--bg2:#0D0F12;--card:#13161A;--card2:#1A1E24;--card3:#232830;
+  --line:rgba(201,206,216,.10);--line2:rgba(201,206,216,.19);
+  --text:#F4F6F8;--mute:#9BA4B0;--dim:#69727E;
+  --orange:#FF7A1A;--orange2:#FF9A45;--orange-soft:rgba(255,122,26,.12);--orange-line:rgba(255,122,26,.38);
+  --silver:#C9CED8;--silver2:#E7EAF0;--silver-soft:rgba(201,206,216,.07);
+  --ok:#34C98A;--ok-soft:rgba(52,201,138,.12);--warn:#F5A524;--warn-soft:rgba(245,165,36,.12);
+  --err:#F0616D;--err-soft:rgba(240,97,109,.12);--info:#5BA8FF;--info-soft:rgba(91,168,255,.12);
+  --r-lg:22px;--r:16px;--r-sm:12px;--r-xs:9px;--nav-h:70px;
+  --safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);--tg-t:0px;--tg-b:0px;
+  --shadow:0 12px 28px -16px rgba(0,0,0,.8);--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans Bengali","Hind Siliguri",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.45;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{min-height:var(--tg-vh,100vh)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+svg.ic{width:1.15em;height:1.15em;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-.2em}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+#app{max-width:560px;margin:0 auto;min-height:var(--tg-vh,100vh);position:relative;background:radial-gradient(120% 40% at 50% -6%,rgba(255,122,26,.09),transparent 60%),var(--bg)}
+#view{padding:0 16px calc(var(--nav-h) + 38px + var(--safe-b) + var(--tg-b));animation:fade .28s ease}
+#view.nonav{padding-bottom:calc(32px + var(--safe-b) + var(--tg-b))}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+
+/* top bars */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;padding:calc(10px + var(--safe-t) + var(--tg-t)) 0 10px;margin:0 -16px 6px;padding-left:16px;padding-right:16px;background:linear-gradient(180deg,var(--bg) 70%,rgba(7,8,10,0))}
+.topbar h1{font-size:1.12rem;font-weight:700;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ibtn{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);color:var(--silver2);position:relative;flex-shrink:0;transition:.15s}
+.ibtn:active{transform:scale(.94)}.ibtn .dotb{position:absolute;top:-4px;right:-4px;min-width:17px;height:17px;border-radius:9px;background:var(--orange);color:#1a0d02;font-size:.62rem;font-weight:800;display:grid;place-items:center;padding:0 4px}
+.homebar{display:flex;align-items:center;gap:12px;padding:calc(14px + var(--safe-t) + var(--tg-t)) 0 12px}
+.brand{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,#FF9A45,#E8650A);display:grid;place-items:center;color:#1a0d02;flex-shrink:0;overflow:hidden;box-shadow:0 6px 18px -8px rgba(255,122,26,.7)}
+.logo img{width:100%;height:100%;object-fit:cover}.logo svg{width:22px;height:22px}
+.brand b{display:block;font-size:1rem;font-weight:800;letter-spacing:.2px}.brand small{display:block;color:var(--mute);font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(145deg,var(--card3),var(--card2));border:1.5px solid var(--silver);display:grid;place-items:center;font-weight:800;font-size:.9rem;color:var(--silver2);overflow:hidden;flex-shrink:0}
+.avatar img{width:100%;height:100%;object-fit:cover}.avatar.lg{width:78px;height:78px;font-size:1.6rem;border-width:2px}
+
+/* cards */
+.card{background:linear-gradient(180deg,#171B20,#121519);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.04);position:relative}
+.card.flat{box-shadow:none}.card.tight{padding:12px}
+.card-t{display:flex;align-items:center;gap:9px;font-weight:700;font-size:.95rem;margin-bottom:12px}
+.card-t .ic{color:var(--orange)}.card-t .more{margin-left:auto;font-size:.76rem;color:var(--orange2);font-weight:700}
+.hero{background:linear-gradient(145deg,rgba(255,122,26,.13),rgba(19,22,26,.95) 46%,rgba(201,206,216,.06));border-color:var(--orange-line)}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 10px;font-weight:700;font-size:.98rem}
+.sec a,.sec button{font-size:.76rem;color:var(--orange2);font-weight:700}
+.muted{color:var(--mute)}.dim{color:var(--dim)}.ok{color:var(--ok)}.err{color:var(--err)}.warn{color:var(--warn)}.or{color:var(--orange)}
+.tiny{font-size:.74rem;color:var(--mute)}.bold{font-weight:700}
+.row{display:flex;align-items:center;gap:12px}.between{justify-content:space-between}.grow{flex:1;min-width:0}.wrap{flex-wrap:wrap}.gap8{gap:8px}
+.kv{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:.88rem}.kv:last-child{border:0}.kv span{color:var(--mute)}.kv b{text-align:right;word-break:break-word;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.divider{height:1px;background:var(--line);margin:14px 0}
+
+/* balance */
+.cursel{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -2px 14px;padding:2px}.cursel::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:8px 14px;border-radius:99px;background:var(--card2);border:1px solid var(--line);color:var(--mute);font-weight:700;font-size:.8rem;transition:.15s;white-space:nowrap}
+.chip.on{background:var(--orange-soft);border-color:var(--orange-line);color:var(--orange2)}
+.big{font-size:2.15rem;font-weight:800;letter-spacing:-.8px;line-height:1.1}.big small{font-size:.95rem;color:var(--silver);font-weight:700;margin-left:4px}
+.stat{background:var(--silver-soft);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px}.stat span{display:block;font-size:.68rem;color:var(--mute);font-weight:600;margin-bottom:3px}.stat b{font-size:.98rem;font-weight:700}
+.wcard{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px}
+.cur-ic{width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,var(--card3),var(--card2));border:1px solid var(--line2);display:grid;place-items:center;font-weight:800;color:var(--orange2);font-size:.9rem;flex-shrink:0}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:14px;font-weight:700;font-size:.92rem;background:linear-gradient(180deg,#FF8B2E,#EE6A0C);color:#1a0d02;border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 20px -10px rgba(255,122,26,.65),inset 0 1px 0 rgba(255,255,255,.28);transition:.15s;width:100%}
+.btn:active{transform:scale(.98)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.sec2{background:linear-gradient(180deg,#2A2F37,#1E2228);color:var(--silver2);border-color:var(--line2);box-shadow:none}
+.btn.ghost{background:transparent;color:var(--silver2);border:1px solid var(--line2);box-shadow:none}
+.btn.danger{background:var(--err-soft);color:var(--err);border:1px solid rgba(240,97,109,.35);box-shadow:none}
+.btn.ok{background:linear-gradient(180deg,#3DD596,#25AD72);color:#032418}
+.btn.sm{min-height:36px;padding:0 14px;font-size:.8rem;border-radius:11px;width:auto}.btn.inl{width:auto}
+.btns{display:flex;gap:10px}.btns .btn{flex:1}
+
+/* quick actions */
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.qa{background:linear-gradient(180deg,#171B20,#12151A);border:1px solid var(--line);border-radius:var(--r);padding:14px 6px 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:.76rem;font-weight:700;color:var(--silver2);transition:.15s}
+.qa:active{transform:scale(.96);border-color:var(--orange-line)}
+.qa .qi{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--orange-soft);color:var(--orange);border:1px solid var(--orange-line)}
+.qa .qi svg{width:21px;height:21px}.qa.off{opacity:.4}
+
+/* progress */
+.bar{height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.bar b{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--orange),var(--orange2));transition:width .6s}
+.bar.ok b{background:linear-gradient(90deg,#25AD72,var(--ok))}
+.cd{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:.3px}
+
+/* lists */
+.li{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;width:100%;text-align:left;transition:.15s}
+button.li:active,a.li:active{border-color:var(--orange-line);transform:scale(.99)}
+.li .ico{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--silver-soft);border:1px solid var(--line);color:var(--silver2);flex-shrink:0}
+.li .ico svg{width:19px;height:19px}.li .ico.in{background:var(--ok-soft);color:var(--ok);border-color:rgba(52,201,138,.25)}.li .ico.out{background:var(--err-soft);color:var(--err);border-color:rgba(240,97,109,.25)}.li .ico.or{background:var(--orange-soft);color:var(--orange);border-color:var(--orange-line)}
+.li .m{flex:1;min-width:0}.li .m b{display:block;font-size:.9rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.li .m span{display:block;font-size:.74rem;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .r{text-align:right;flex-shrink:0;max-width:44%}.li .r b{display:block;font-weight:800;font-size:.92rem}
+.li.unread{border-color:var(--orange-line);background:linear-gradient(90deg,rgba(255,122,26,.08),var(--card) 60%)}
+.menu .li{margin-bottom:8px}.li .chev{color:var(--dim);width:16px;height:16px}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:.66rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border:1px solid;white-space:nowrap}
+.pill::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.pill.pending,.pill.waiting,.pill.warn{color:var(--warn);background:var(--warn-soft);border-color:rgba(245,165,36,.3)}
+.pill.completed,.pill.approved,.pill.active,.pill.resolved,.pill.ok,.pill.claimed{color:var(--ok);background:var(--ok-soft);border-color:rgba(52,201,138,.3)}
+.pill.processing,.pill.open,.pill.progress,.pill.info{color:var(--info);background:var(--info-soft);border-color:rgba(91,168,255,.3)}
+.pill.rejected,.pill.failed,.pill.err,.pill.expired,.pill.suspended{color:var(--err);background:var(--err-soft);border-color:rgba(240,97,109,.3)}
+.pill.closed,.pill.mute,.pill.cancelled{color:var(--mute);background:var(--silver-soft);border-color:var(--line2)}
+.pill.free{color:var(--silver2);background:var(--silver-soft);border-color:var(--line2)}.pill.paid,.pill.featured{color:var(--orange2);background:var(--orange-soft);border-color:var(--orange-line)}
+
+/* forms */
+.fld{margin-bottom:14px}.fld label{display:block;font-size:.76rem;font-weight:700;color:var(--mute);margin-bottom:7px}
+.inp,.sel,textarea.inp{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line2);border-radius:13px;padding:0 14px;min-height:48px;font-size:.95rem;outline:none;transition:.15s;color:var(--text)}
+textarea.inp{padding:12px 14px;min-height:110px;resize:vertical}
+.inp:focus,.sel:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange-soft)}
+.inp.bad{border-color:var(--err)}.fld .help{font-size:.72rem;color:var(--dim);margin-top:6px}.fld .errm{font-size:.74rem;color:var(--err);margin-top:6px;display:none}.fld.bad .errm{display:block}.fld.bad .inp,.fld.bad .sel{border-color:var(--err)}
+.sel{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 15px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:36px}
+.sel option{background:#15181c}
+.amt{position:relative}.amt .inp{padding-right:78px;font-weight:700;font-size:1.05rem}.amt .max{position:absolute;right:8px;top:8px;height:32px;padding:0 12px;border-radius:9px;background:var(--orange-soft);color:var(--orange2);font-weight:800;font-size:.74rem;border:1px solid var(--orange-line)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}.seg::-webkit-scrollbar{display:none}
+.seg button{flex:1;min-height:38px;padding:0 12px;border-radius:10px;font-weight:700;font-size:.8rem;color:var(--mute);white-space:nowrap}.seg button.on{background:linear-gradient(180deg,#2A2F37,#20252C);color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.opt{display:flex;align-items:center;gap:12px;padding:13px;border-radius:var(--r);background:var(--card);border:1.5px solid var(--line);margin-bottom:10px;width:100%;text-align:left;transition:.15s}
+.opt.on{border-color:var(--orange);background:linear-gradient(90deg,var(--orange-soft),var(--card))}.opt .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--line2);margin-left:auto;flex-shrink:0;display:grid;place-items:center}.opt.on .rd{border-color:var(--orange)}.opt.on .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--orange)}
+.tgl{width:46px;height:26px;border-radius:99px;background:var(--card3);position:relative;flex-shrink:0;transition:.2s;border:1px solid var(--line2)}.tgl::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--silver);transition:.2s}.tgl.on{background:var(--orange);border-color:var(--orange)}.tgl.on::after{left:22px;background:#fff}
+.upl{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px dashed var(--line2);border-radius:var(--r);color:var(--mute);font-size:.84rem;width:100%}.upl img{width:46px;height:46px;border-radius:10px;object-fit:cover}
+
+/* nav */
+#nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + var(--safe-b) + var(--tg-b));width:min(calc(100% - 24px),536px);z-index:60;display:flex;gap:2px;padding:7px;border-radius:26px;background:rgba(18,21,25,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line2);box-shadow:0 18px 40px -12px rgba(0,0,0,.8)}
+#nav[hidden]{display:none}
+#nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0 5px;border-radius:19px;color:var(--dim);font-size:.64rem;font-weight:700;transition:.2s;min-width:0}
+#nav button svg{width:21px;height:21px}#nav button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#nav button.on{color:var(--orange2);background:var(--orange-soft)}
+
+/* overlays */
+#overlay{position:fixed;inset:0;z-index:200;display:none}#overlay.show{display:block}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.72);animation:fadein .2s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.sheet{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,560px);max-height:90vh;overflow:auto;background:linear-gradient(180deg,#191D22,#12151A);border:1px solid var(--line2);border-bottom:0;border-radius:26px 26px 0 0;padding:10px 18px calc(22px + var(--safe-b));animation:up .26s cubic-bezier(.2,.8,.3,1)}
+@keyframes up{from{transform:translate(-50%,40px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+.sheet .grab{width:40px;height:4px;border-radius:4px;background:var(--line2);margin:0 auto 14px}
+.sheet h3{font-size:1.1rem;margin-bottom:4px;display:flex;align-items:center;gap:10px}.sheet .sub{color:var(--mute);font-size:.84rem;margin-bottom:16px}
+.sheet .btns{margin-top:18px}
+.dlg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(calc(100% - 32px),400px);background:linear-gradient(180deg,#191D22,#12151A);border:1px solid var(--line2);border-radius:24px;padding:24px 20px 20px;text-align:center;animation:pop .22s}
+@keyframes pop{from{transform:translate(-50%,-46%) scale(.95);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
+.dlg .bigic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;background:var(--orange-soft);color:var(--orange);border:1px solid var(--orange-line)}.dlg .bigic svg{width:30px;height:30px}
+.dlg .bigic.ok{background:var(--ok-soft);color:var(--ok);border-color:rgba(52,201,138,.35)}.dlg .bigic.err{background:var(--err-soft);color:var(--err);border-color:rgba(240,97,109,.35)}
+.dlg h3{font-size:1.15rem;margin-bottom:6px}.dlg p{color:var(--mute);font-size:.88rem}.dlg .kvs{text-align:left;margin:14px 0 4px}
+#toasts{position:fixed;top:calc(12px + var(--safe-t) + var(--tg-t));left:50%;transform:translateX(-50%);z-index:400;width:min(calc(100% - 28px),420px);display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:rgba(26,30,36,.97);border:1px solid var(--line2);border-left:3px solid var(--orange);border-radius:14px;padding:12px 14px;font-size:.86rem;font-weight:600;box-shadow:0 12px 30px -10px rgba(0,0,0,.8);animation:fade .25s;display:flex;gap:10px;align-items:center}
+.toast.ok{border-left-color:var(--ok)}.toast.err{border-left-color:var(--err)}.toast.warn{border-left-color:var(--warn)}
+
+/* states */
+.sk{background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.1),rgba(255,255,255,.04));background-size:200% 100%;animation:shm 1.3s infinite;border-radius:12px}@keyframes shm{to{background-position:-200% 0}}
+.sk.card{height:120px;border:0;box-shadow:none}.sk.line{height:14px;margin:8px 0}.sk.li{height:68px;border:0}
+.empty{text-align:center;padding:40px 20px;color:var(--mute)}.empty .eic{width:68px;height:68px;border-radius:22px;margin:0 auto 16px;display:grid;place-items:center;background:var(--silver-soft);border:1px solid var(--line2);color:var(--silver)}.empty .eic svg{width:30px;height:30px}.empty b{display:block;color:var(--text);font-size:1rem;margin-bottom:5px}.empty p{font-size:.85rem;margin-bottom:16px}
+.empty .btn{width:auto;display:inline-flex}
+.fullstate{min-height:var(--tg-vh,100vh);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px}
+.fullstate .eic{width:88px;height:88px;border-radius:28px;margin-bottom:22px;display:grid;place-items:center;background:var(--orange-soft);border:1px solid var(--orange-line);color:var(--orange)}.fullstate .eic svg{width:40px;height:40px}.fullstate .eic.err{background:var(--err-soft);border-color:rgba(240,97,109,.4);color:var(--err)}
+.fullstate h2{font-size:1.3rem;margin-bottom:8px}.fullstate p{color:var(--mute);font-size:.92rem;max-width:340px;margin-bottom:22px}.fullstate .btn{max-width:260px}
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:14px;background:var(--info-soft);border:1px solid rgba(91,168,255,.25);color:#BCDCFF;font-size:.82rem;margin-bottom:14px;line-height:1.45}.note svg{margin-top:2px}
+.note.warn{background:var(--warn-soft);border-color:rgba(245,165,36,.3);color:#FFD78A}.note.err{background:var(--err-soft);border-color:rgba(240,97,109,.3);color:#FFB3BA}.note.or{background:var(--orange-soft);border-color:var(--orange-line);color:#FFD2AE}
+.demobar{position:sticky;top:0;z-index:90;display:flex;align-items:center;gap:8px;padding:calc(6px + var(--safe-t) + var(--tg-t)) 14px 6px;background:#2a1503;border-bottom:1px solid var(--orange-line);font-size:.7rem;font-weight:700;color:var(--orange2)}.demobar button{margin-left:auto;background:var(--orange);color:#1a0d02;padding:4px 10px;border-radius:8px;font-weight:800;font-size:.68rem}
+.splash{position:fixed;inset:0;z-index:500;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}.splash .logo{width:72px;height:72px;border-radius:24px}.splash .logo svg{width:36px;height:36px}.splash .bar{width:160px}.splash .bar b{width:40%;animation:ld 1.2s infinite}@keyframes ld{0%{margin-left:-40%}100%{margin-left:100%}}
+
+/* plans & mining */
+.plan{position:relative;overflow:hidden}.plan .ph{display:flex;gap:12px;align-items:center;margin-bottom:12px}.plan .pimg{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,var(--card3),var(--card2));border:1px solid var(--line2);display:grid;place-items:center;color:var(--orange);flex-shrink:0;overflow:hidden}.plan .pimg img{width:100%;height:100%;object-fit:cover}.plan .pimg svg{width:26px;height:26px}
+.plan .tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.plan .price{font-size:1.25rem;font-weight:800}.ben{display:flex;gap:9px;font-size:.84rem;color:var(--silver);margin:7px 0}.ben svg{color:var(--ok);margin-top:2px}
+.miner{border-color:var(--line2)}.miner.ready{border-color:var(--orange-line);background:linear-gradient(145deg,rgba(255,122,26,.12),#14171B 55%)}
+.ring{width:88px;height:88px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:conic-gradient(var(--orange) calc(var(--p,0)*1%),rgba(255,255,255,.08) 0)}.ring i{width:72px;height:72px;border-radius:50%;background:#14171B;display:grid;place-items:center;font-style:normal;text-align:center;font-size:.7rem;color:var(--mute);line-height:1.2}.ring i b{display:block;font-size:.95rem;color:var(--text)}
+.tl{position:relative;padding-left:22px}.tl::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--line2)}.tl .s{position:relative;padding-bottom:14px;font-size:.84rem}.tl .s::before{content:"";position:absolute;left:-21px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--card3);border:2px solid var(--line2)}.tl .s.on::before{background:var(--orange);border-color:var(--orange)}.tl .s.ok::before{background:var(--ok);border-color:var(--ok)}.tl .s.bad::before{background:var(--err);border-color:var(--err)}
+.banner{border-radius:var(--r-lg);padding:16px 18px;margin-bottom:14px;background:linear-gradient(120deg,rgba(255,122,26,.2),rgba(201,206,216,.07));border:1px solid var(--orange-line)}.banner b{display:block;font-size:1rem;margin-bottom:3px}.banner span{font-size:.84rem;color:var(--silver)}
+.lb{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px}.lb .rk{width:32px;text-align:center;font-weight:800;color:var(--mute)}.lb.top .rk{color:var(--orange2);font-size:1.1rem}.lb.me{border-color:var(--orange);background:linear-gradient(90deg,var(--orange-soft),var(--card))}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;background:rgba(0,0,0,.4);border:1px dashed var(--line2);padding:12px 14px;border-radius:13px;word-break:break-all;font-size:.82rem;color:var(--silver2)}
+.msg{max-width:86%;padding:10px 13px;border-radius:16px;font-size:.88rem;margin-bottom:10px;background:var(--card2);border:1px solid var(--line);white-space:pre-wrap;word-break:break-word}.msg.me{margin-left:auto;background:var(--orange-soft);border-color:var(--orange-line)}.msg small{display:block;color:var(--dim);font-size:.66rem;margin-top:4px}
+.sticky-cta{position:sticky;bottom:calc(14px + var(--safe-b));margin-top:16px;z-index:20}
+@media(max-width:350px){#view{padding-left:12px;padding-right:12px}.topbar{margin:0 -12px 6px;padding-left:12px;padding-right:12px}.big{font-size:1.85rem}.qgrid{gap:8px}.qa{font-size:.7rem;padding:12px 4px 10px}#nav button{font-size:.58rem}.ring{width:76px;height:76px}.ring i{width:62px;height:62px}}
+@media(min-width:700px){#app{border-left:1px solid var(--line);border-right:1px solid var(--line)}}
+.demobar{position:relative;top:auto}
+details.faq summary{cursor:pointer;font-weight:700;font-size:.9rem;list-style:none;display:flex;justify-content:space-between;gap:10px;padding:4px 0}
+details.faq summary::-webkit-details-marker{display:none}details.faq summary::after{content:"+";color:var(--orange);font-weight:800}details.faq[open] summary::after{content:"–"}
+details.faq p{color:var(--mute);font-size:.86rem;margin-top:8px;line-height:1.55}
+.hero .cursel{margin-bottom:12px}
+button:focus-visible,a:focus-visible,.inp:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.inp::placeholder{color:var(--dim)}
+.seg+.fld{margin-top:2px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+</style></head><body>
+<div id="app"><div id="demo"></div><div id="view"></div></div>
+<nav id="nav" hidden></nav><div id="overlay"></div><div id="toasts" aria-live="polite"></div>
+<div id="splash" class="splash"><div class="logo"><svg class="ic" viewBox="0 0 24 24" style="width:36px;height:36px"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div><div class="bar"><b></b></div></div>
+<script>
+(function(){'use strict';
+const TM=window.TM={};
+TM.CFG=Object.assign({API_BASE:'',BOT_USERNAME:'TrustedMiningBot',VERSION:'1.0.0',TIMEOUT:15000},window.TM_CONFIG||{});
+TM.DEMO=false;
+TM.S={cfg:null,me:null,skew:0,unread:0,cur:null,lang:'en'};
+TM.ACT={};
+const $=(s,r)=>(r||document).querySelector(s);
+TM.$=$;TM.$$=(s,r)=>[...(r||document).querySelectorAll(s)];
+TM.esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+TM.ls={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+TM.uuid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'id-'+Date.now().toString(36)+Math.random().toString(36).slice(2,12);
+TM.sleep=ms=>new Promise(r=>setTimeout(r,ms));
+TM.now=()=>Date.now()+TM.S.skew;
+/* idempotency keys: one key per logical action until it definitively succeeds/fails */
+const keys={};TM.idem=k=>keys[k]||(keys[k]=TM.uuid());TM.idemClear=k=>{delete keys[k]};
+
+/* ---------- i18n ---------- */
+TM.dict={en:{},bn:{}};
+TM.t=(k,v)=>{const d=TM.dict;let s=d[TM.S.lang][k];if(s==null)s=d.en[k];if(s==null){console.warn('[i18n] missing',k);return k}
+  return v?s.replace(/\{(\w+)\}/g,(m,n)=>v[n]!=null?v[n]:m):s};
+TM.L=x=>x==null?'':typeof x==='string'?x:(x[TM.S.lang]||x.en||'');
+TM.setLang=l=>{TM.S.lang=l==='bn'?'bn':'en';document.documentElement.lang=TM.S.lang;TM.ls.set('tm_lang',TM.S.lang)};
+
+/* ---------- formatting ---------- */
+TM.dec=c=>{const x=((TM.S.cfg||{}).currencies||[]).find(y=>y.code===c);return x?x.decimals:2};
+TM.fmt=(n,c)=>{const d=TM.dec(c);return Number(n||0).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})};
+TM.money=(n,c,sign)=>(sign&&n>0?'+':'')+TM.fmt(n,c)+' '+c;
+TM.dt=ts=>ts?new Date(ts).toLocaleString(TM.S.lang==='bn'?'bn-BD':'en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+TM.d=ts=>ts?new Date(ts).toLocaleDateString(TM.S.lang==='bn'?'bn-BD':'en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+TM.hms=ms=>{ms=Math.max(0,Math.floor(ms/1000));const d=Math.floor(ms/86400),h=Math.floor(ms%86400/3600),m=Math.floor(ms%3600/60),s=ms%60,p=x=>String(x).padStart(2,'0');return (d?d+'d ':'')+p(h)+':'+p(m)+':'+p(s)};
+TM.ago=ts=>{const s=Math.floor((TM.now()-ts)/1000);if(s<60)return TM.t('ago.now');if(s<3600)return TM.t('ago.m',{n:Math.floor(s/60)});if(s<86400)return TM.t('ago.h',{n:Math.floor(s/3600)});return TM.t('ago.d',{n:Math.floor(s/86400)})};
+
+/* ---------- icons ---------- */
+const P={
+home:'<path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',
+cpu:'<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v4M15 1v4M9 19v4M15 19v4M1 9h4M1 15h4M19 9h4M19 15h4"/>',
+layers:'<path d="M12 2l10 5-10 5L2 7z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+wallet:'<path d="M20 7H5a2 2 0 0 1 0-4h13v4"/><path d="M3 5v14a2 2 0 0 0 2 2h15V7"/><circle cx="16.5" cy="14" r="1.2"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+bell:'<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+down:'<path d="M12 4v12M6 11l6 6 6-6"/><path d="M5 21h14"/>',
+up:'<path d="M12 20V8M6 13l6-6 6 6"/><path d="M5 3h14"/>',
+users:'<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-3.9 3.1-6 7-6s7 2.1 7 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M22 21c0-3-1.7-5-4.5-5.7"/>',
+history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/>',
+trophy:'<path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/>',
+help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4.5"/><path d="M12 17.5h.01"/>',
+settings:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+shield:'<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/>',
+copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/>',
+share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/>',
+check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+x:'<path d="M6 6l12 12M18 6L6 18"/>',
+chev:'<path d="M9 6l6 6-6 6"/>',
+back:'<path d="M15 6l-6 6 6 6"/>',
+clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v9h14v-9"/><path d="M12 8c-2 0-4-1-4-3s3-2 4 3c1-5 4-5 4-3s-2 3-4 3"/>',
+info:'<circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7.5h.01"/>',
+alert:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2c3 3 4.5 6.5 4.5 10S15 19 12 22c-3-3-4.5-6.5-4.5-10S9 5 12 2z"/>',
+file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/>',
+send:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',
+image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>',
+lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+star:'<path d="M12 2l3 7 7 .6-5.3 4.7 1.6 7.2L12 17.8 5.7 21.5l1.6-7.2L2 9.6 9 9z"/>',
+refresh:'<path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2"/><path d="M21 4v5h-5M3 20v-5h5"/>',
+wifioff:'<path d="M2 2l20 20M8.5 16.4a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 4-2.3M10.7 5.1A15 15 0 0 1 22 9M2 9a15 15 0 0 1 3.7-2.6M12 20h.01"/>',
+tool:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/>',
+coins:'<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>',
+loader:'<path d="M12 3a9 9 0 1 0 9 9"/>',
+ban:'<circle cx="12" cy="12" r="10"/><path d="M5 5l14 14"/>',
+msg:'<path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/>'
+};
+TM.ic=(n,cls)=>'<svg class="ic'+(cls?' '+cls:'')+'" viewBox="0 0 24 24" aria-hidden="true">'+(P[n]||P.info)+'</svg>';
+
+/* ---------- Telegram layer ---------- */
+const W=window.Telegram&&window.Telegram.WebApp;
+let backFn=null;
+const tg=TM.tg={W,
+  inTG:!!(W&&W.initData),
+  initData:()=>W&&W.initData||'',
+  user(){const u=W&&W.initDataUnsafe&&W.initDataUnsafe.user;return u||{}},
+  init(){
+    const root=document.documentElement.style;
+    const vp=()=>{const h=W&&(W.viewportStableHeight||W.viewportHeight)||window.innerHeight;root.setProperty('--tg-vh',h+'px');
+      if(W){const c=W.contentSafeAreaInset||{},s=W.safeAreaInset||{};root.setProperty('--tg-t',((c.top||0)+(s.top||0))+'px');root.setProperty('--tg-b',((c.bottom||0)+(s.bottom||0))+'px')}};
+    vp();
+    if(!W)return;
+    try{W.ready();W.expand();W.setHeaderColor&&W.setHeaderColor('#07080A');W.setBackgroundColor&&W.setBackgroundColor('#07080A');W.setBottomBarColor&&W.setBottomBarColor('#07080A');W.disableVerticalSwipes&&W.disableVerticalSwipes()}catch(e){}
+    ['viewportChanged','safeAreaChanged','contentSafeAreaChanged'].forEach(ev=>{try{W.onEvent(ev,vp)}catch(e){}});
+  },
+  setBack(fn){if(!W||!W.BackButton)return;try{if(backFn)W.BackButton.offClick(backFn);backFn=fn;if(fn){W.BackButton.onClick(fn);W.BackButton.show()}else W.BackButton.hide()}catch(e){}},
+  haptic(t){if(!TM.ls.get('tm_haptic',true))return;try{const h=W&&W.HapticFeedback;if(!h)return;if(t==='success'||t==='error'||t==='warning')h.notificationOccurred(t);else if(t==='select')h.selectionChanged();else h.impactOccurred(t||'light')}catch(e){}},
+  open(url){try{if(W&&W.openLink)W.openLink(url);else window.open(url,'_blank','noopener')}catch(e){}},
+  openTG(url){try{if(W&&W.openTelegramLink)W.openTelegramLink(url);else window.open(url,'_blank','noopener')}catch(e){}},
+  share(url,text){tg.openTG('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text||''))},
+  async copy(text){try{await navigator.clipboard.writeText(text);return true}catch(e){try{const a=document.createElement('textarea');a.value=text;a.style.cssText='position:fixed;opacity:0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();return ok}catch(e2){return false}}}
+};
+})();
+
+(function(){'use strict';const TM=window.TM;
+const en={
+'state.cfg':'Backend not configured',
+'state.cfg_t':'API_BASE is empty. Open index.html and set your backend URL in TM_CONFIG.',
+'state.tgonly':'Open in Telegram',
+'state.tgonly_t':'This app only works inside Telegram. Please open it from the bot.',
+'state.nosetup':'Not set up yet',
+'state.nosetup_t':'Wallets appear once the service is set up by the administrator.',
+'state.featoff':'Unavailable',
+'err.feature_disabled':'This feature is currently unavailable.',
+'err.restricted':'This action is restricted on your account. Please contact support.',
+'err.not_eligible':'You are not eligible for this yet.',
+'err.proof_required':'A payment proof image is required.',
+'err.invalid_proof':'Invalid proof image (PNG/JPG/WEBP, max 1.5 MB).',
+'err.storage_unavailable':'Upload service unavailable. Try again later.',
+'err.registration_closed':'Registration is currently closed.',
+'tx.adjustment':'Adjustment',
+'tx.refund':'Refund',
+'st.waiting':'Waiting',
+'claim_confirm_t':'Claim your mining reward now?',
+'v.proof':'Please attach the payment proof.',
+'faq.none':'No FAQ yet.',
+'lb.empty':'No rankings yet',
+'lb.empty_t':'Rankings appear after real activity.',
+'lb.cat.miners':'Top miners',
+'lb.cat.referrers':'Top referrers',
+'lb.cat.rewards':'Top earners',
+'lb.val.cycles':'Cycles',
+'lb.val.referrals':'Referrals',
+'lb.val.rewards':'Rewards',
+'mining.off':'Mining is turned off',
+'mining.off_t':'Mining is currently disabled. Please check back later.',
+'ref.how_bonus':'Bonus {b} when your invite qualifies.',
+'ref.how_comm':'Commission {c} on their activity.',
+
+'nav.home':'Home','nav.mining':'Mining','nav.plans':'Plans','nav.wallet':'Wallet','nav.profile':'Profile','nav.notifications':'Notifications',
+'ok':'OK','cancel':'Cancel','confirm':'Confirm','close':'Close','back':'Back','retry':'Try again','wait':'Please wait…','submit':'Submit','send':'Send','copy':'Copy','copied':'Copied','copy_fail':'Could not copy','share':'Share','open':'Open','all':'All','see_all':'See all','load_more':'Load more','details':'Details','you':'You','date':'Date','ref':'Reference','note':'Note','online':'Back online',
+'amount':'Amount','currency':'Currency','available':'Available balance','locked':'Locked','mined':'Mined','deposited':'Deposited','withdrawn':'Withdrawn','per_currency':'Each currency has its own separate wallet. Balances are never combined.','recent':'Recent activity','all_wallets':'All wallets','min':'Min','max':'Max','fee':'Fee','you_receive':'You receive','reward':'Reward',
+'deposit':'Deposit','withdraw':'Withdraw','referral':'Referral','history':'History','leaderboard':'Leaderboard','support':'Support','account':'Account','settings':'Settings','language':'Language',
+'ago.now':'just now','ago.m':'{n}m ago','ago.h':'{n}h ago','ago.d':'{n}d ago',
+'home.ready':'{n} miner(s) ready to claim','home.ready_t':'Claim your rewards now.','home.next':'Next reward in','go_mining':'Go to mining',
+'mining.none':'No active miners','mining.none_t':'Pick a plan to start mining.','mining.rule':'Each miner has its own cycle. After you claim, the next cycle starts from the claim time. The server decides whether a claim is allowed.',
+'ready':'Ready','claim':'Claim reward','not_ready':'Not ready yet','claimed':'Reward claimed','claimed_t':'The server confirmed your claim.','claim_fail':'Claim failed','next_cycle':'Next cycle','reward_cycle':'Reward / cycle','cycles':'Cycles','cycle':'Cycle','expires':'Expires','never':'Never','expired_miners':'Expired miners','hours':'hours','days':'days','unlimited':'Unlimited',
+'free':'Free','paid':'Paid','popular':'Popular','owned':'Owned ×{n}','limit':'Limit reached','price':'Price','validity':'Validity','plan':'Plan','max_reward':'Max total reward','max_owned':'Max per user','buy':'Buy plan',
+'plans.risk':'Rewards are configured by the administrator and are not guaranteed. Only use funds you can afford to lose.','empty.plans':'No plans','empty.plans_t':'No plans match this filter.',
+'insufficient':'Insufficient balance','insufficient_t':'You need {need} but have {have}. Deposit first.','confirm_buy':'Confirm purchase','confirm_buy_t':'Funds are deducted only after the server confirms.','balance_after':'Balance after','buy_ok':'Plan activated','buy_ok_t':'Your new miner is active. Its first cycle has started.','buy_fail':'Purchase failed',
+'empty.tx':'No transactions yet','empty.tx_t':'Your activity will appear here.','empty.notif':'No notifications','empty.notif_t':'You are all caught up.',
+'dep.off':'Deposits unavailable','dep.off_t':'Deposits are currently disabled.','dep.auto':'Crypto','dep.manual':'Manual','dep.network':'Network','dep.method':'Method','dep.address':'Deposit address','dep.memo':'Memo / tag (required)','dep.warn':'Send only {c} on {n}. Other assets or networks may be lost.','dep.send_to':'Send to','dep.acc_type':'Account type','dep.manual_t':'Send the money, then submit the transaction ID below. Your balance updates only after verification.','dep.txid':'Transaction ID','dep.txid_ph':'Paste transaction hash / TrxID','dep.proof':'Payment screenshot (optional)','dep.proof_pick':'Tap to choose an image','dep.proof_big':'Image is too large (max 1.5 MB)','dep.submit':'Submit deposit request','dep.confirm':'Confirm deposit request','dep.confirm_t':'Make sure you already sent the payment.','dep.sent':'Request submitted','dep.sent_t':'Your deposit is pending verification. Your balance will NOT change until it is approved.','dep.fail':'Deposit request failed','dep.requests':'Your deposit requests','dep.none':'No deposit requests','dep.none_t':'Submitted requests appear here.',
+'wd.off':'Withdrawals unavailable','wd.off_t':'Withdrawals are currently disabled.','wd.address':'Wallet address','wd.address_ph':'Paste destination address','wd.number':'Account number','wd.to':'To','wd.rule':'The amount is reserved when you submit and reviewed by the team. If rejected, it returns to your wallet.','wd.submit':'Request withdrawal','wd.confirm':'Confirm withdrawal','wd.confirm_t':'Check the address carefully. Transfers cannot be reversed.','wd.sent':'Request submitted','wd.sent_t':'Your withdrawal is pending review. The amount is reserved until a decision is made.','wd.fail':'Withdrawal failed','wd.requests':'Your withdrawals','wd.none':'No withdrawals','wd.none_t':'Submitted requests appear here.',
+'v.amount':'Enter a valid amount','v.min':'Minimum is {n}','v.max':'Maximum is {n}','v.balance':'Insufficient balance','v.fee':'Amount must be higher than the fee','v.address':'Invalid address for this network','v.txid':'Enter a valid transaction ID','v.required':'This field is too short',
+'ref.off':'Referral unavailable','ref.off_t':'The referral program is currently disabled.','ref.code':'Your referral code','ref.count':'Referrals','ref.commission':'Commission','ref.how':'Earn {p}% commission on your referrals\' activity plus a {b} bonus, as configured by the administrator.','ref.earned':'Total earned','ref.list':'Your referrals','ref.none':'No referrals yet','ref.none_t':'Share your link to invite friends.','ref.share_text':'Join Trusted Mining!',
+'lb.off':'Leaderboard unavailable','lb.off_t':'The leaderboard is currently disabled.','lb.weekly':'Weekly','lb.all':'All time','lb.your':'Your rank','lb.demo':'Demo data — other names are simulated.',
+'notif':'Notifications','mark_all':'Mark all read',
+'sp.tickets':'My tickets','sp.faq':'FAQ','sp.contact':'Contact','sp.new':'New ticket','sp.none':'No tickets','sp.none_t':'Need help? Create a ticket.','sp.category':'Category','sp.subject':'Subject','sp.message':'Message','sp.message_ph':'Describe your issue','sp.sent':'Ticket created','sp.reply':'Write a reply…','sp.closed':'This ticket is closed.','sp.hours':'Support hours','sp.channel':'Official channel',
+'cat.deposit':'Deposit','cat.withdraw':'Withdrawal','cat.mining':'Mining','cat.account':'Account','cat.other':'Other',
+'tx.deposit':'Deposit','tx.withdraw':'Withdrawal','tx.mining':'Mining reward','tx.purchase':'Plan purchase','tx.referral':'Referral','tx.bonus':'Bonus',
+'st.pending':'Pending','st.processing':'Processing','st.completed':'Completed','st.approved':'Approved','st.rejected':'Rejected','st.failed':'Failed','st.expired':'Expired','st.active':'Active','st.open':'Open','st.progress':'In progress','st.resolved':'Resolved','st.closed':'Closed','st.cancelled':'Cancelled','st.suspended':'Suspended',
+'acc.name':'Name','acc.username':'Username','acc.joined':'Joined','acc.status':'Status',
+'set.notif':'Notifications','set.notif_t':'Receive in-app notifications','set.haptic':'Haptic feedback','set.haptic_t':'Vibration on actions',
+'legal.terms':'Terms of Service','legal.privacy':'Privacy Policy','legal.risk':'Risk Disclosure','legal.none':'Not available.',
+'state.offline':'No connection','state.offline_t':'Check your internet connection and try again.','state.error':'Something went wrong','state.maint':'Under maintenance','state.maint_t':'We are improving the service. Please come back soon.','state.susp':'Account suspended','state.susp_t':'Your account is suspended. Contact support for help.','state.auth':'Session expired','state.auth_t':'Please reopen the app from Telegram.','state.404':'Page not found','state.404_t':'This page does not exist.',
+'err.generic':'Something went wrong. Please try again.','err.network':'No connection. Check your internet and try again.','err.timeout':'The request timed out. Try again.','err.server':'Server error. Try again later.','err.maintenance':'The service is under maintenance.','err.suspended':'Your account is suspended.','err.unauthorized':'Session expired. Reopen the app.','err.rate_limited':'Too many requests. Slow down.',
+'err.insufficient_funds':'Insufficient balance.','err.not_ready':'This miner is not ready yet.','err.miner_expired':'This miner has expired.','err.limit_reached':'You reached the limit for this plan.','err.invalid_amount':'Invalid amount.','err.below_min':'Amount is below the minimum.','err.above_max':'Amount is above the maximum.','err.invalid_address':'Invalid address.','err.duplicate_txid':'This transaction ID was already submitted.','err.invalid_txid':'Invalid transaction ID.','err.not_found':'Not found.','err.plan_unavailable':'This plan is unavailable.','err.currency_disabled':'This currency is disabled.','err.validation':'Please check your input.',
+'demo.bar':'DEMO MODE — simulated data, no real money','demo.tools':'Demo tools','demo.sub':'Simulate server-side events to test every state.','demo.done':'Done',
+'dt.appdep':'Approve deposits','dt.rejdep':'Reject deposits','dt.appwd':'Approve withdrawals','dt.rejwd':'Reject withdrawals','dt.maint':'Toggle maintenance','dt.offline':'Toggle offline','dt.fail':'Fail next request','dt.suspend':'Toggle suspend','dt.reset':'Reset data'
+};
+const bn={
+'state.cfg':'ব্যাকএন্ড সেট করা হয়নি',
+'state.cfg_t':'API_BASE খালি। index.html খুলে TM_CONFIG-এ আপনার ব্যাকএন্ড URL বসান।',
+'state.tgonly':'টেলিগ্রামে খুলুন',
+'state.tgonly_t':'এই অ্যাপ শুধু টেলিগ্রামের ভেতরে চলে। বট থেকে খুলুন।',
+'state.nosetup':'এখনো সেটআপ হয়নি',
+'state.nosetup_t':'অ্যাডমিন সেটআপ করলে ওয়ালেট দেখা যাবে।',
+'state.featoff':'সাময়িক বন্ধ',
+'err.feature_disabled':'এই ফিচারটি এখন বন্ধ আছে।',
+'err.restricted':'আপনার অ্যাকাউন্টে এই কাজটি সীমিত। সাপোর্টে যোগাযোগ করুন।',
+'err.not_eligible':'আপনি এখনো এর জন্য যোগ্য নন।',
+'err.proof_required':'পেমেন্টের প্রুফ ছবি দিতে হবে।',
+'err.invalid_proof':'প্রুফ ছবি সঠিক নয় (PNG/JPG/WEBP, সর্বোচ্চ ১.৫ MB)।',
+'err.storage_unavailable':'আপলোড সার্ভিস এখন পাওয়া যাচ্ছে না। পরে চেষ্টা করুন।',
+'err.registration_closed':'রেজিস্ট্রেশন এখন বন্ধ।',
+'tx.adjustment':'সমন্বয়',
+'tx.refund':'ফেরত',
+'st.waiting':'অপেক্ষমাণ',
+'claim_confirm_t':'এখনই মাইনিং রিওয়ার্ড ক্লেইম করবেন?',
+'v.proof':'পেমেন্টের প্রুফ সংযুক্ত করুন।',
+'faq.none':'এখনো কোনো FAQ নেই।',
+'lb.empty':'এখনো র‍্যাংকিং নেই',
+'lb.empty_t':'আসল কার্যক্রম হলে র‍্যাংকিং দেখা যাবে।',
+'lb.cat.miners':'সেরা মাইনার',
+'lb.cat.referrers':'সেরা রেফারার',
+'lb.cat.rewards':'সেরা আর্নার',
+'lb.val.cycles':'সাইকেল',
+'lb.val.referrals':'রেফারেল',
+'lb.val.rewards':'রিওয়ার্ড',
+'mining.off':'মাইনিং বন্ধ',
+'mining.off_t':'মাইনিং এখন বন্ধ আছে। পরে দেখুন।',
+'ref.how_bonus':'আপনার ইনভাইট যোগ্য হলে {b} বোনাস।',
+'ref.how_comm':'তাদের কার্যক্রমে {c} কমিশন।',
+
+'nav.home':'হোম','nav.mining':'মাইনিং','nav.plans':'প্ল্যান','nav.wallet':'ওয়ালেট','nav.profile':'প্রোফাইল','nav.notifications':'নোটিফিকেশন',
+'ok':'ঠিক আছে','cancel':'বাতিল','confirm':'নিশ্চিত করুন','close':'বন্ধ করুন','back':'পেছনে','retry':'আবার চেষ্টা করুন','wait':'অপেক্ষা করুন…','submit':'জমা দিন','send':'পাঠান','copy':'কপি','copied':'কপি হয়েছে','copy_fail':'কপি করা যায়নি','share':'শেয়ার','open':'খুলুন','all':'সব','see_all':'সব দেখুন','load_more':'আরও দেখুন','details':'বিস্তারিত','you':'আপনি','date':'তারিখ','ref':'রেফারেন্স','note':'নোট','online':'আবার অনলাইনে',
+'amount':'পরিমাণ','currency':'কারেন্সি','available':'ব্যবহারযোগ্য ব্যালেন্স','locked':'লক করা','mined':'মাইন করা','deposited':'ডিপোজিট','withdrawn':'উইথড্র করা','per_currency':'প্রতিটি কারেন্সির আলাদা ওয়ালেট আছে। ব্যালেন্স কখনো একসাথে যোগ হয় না।','recent':'সাম্প্রতিক কার্যক্রম','all_wallets':'সব ওয়ালেট','min':'সর্বনিম্ন','max':'সর্বোচ্চ','fee':'ফি','you_receive':'আপনি পাবেন','reward':'রিওয়ার্ড',
+'deposit':'ডিপোজিট','withdraw':'উইথড্র','referral':'রেফারেল','history':'হিস্ট্রি','leaderboard':'লিডারবোর্ড','support':'সাপোর্ট','account':'অ্যাকাউন্ট','settings':'সেটিংস','language':'ভাষা',
+'ago.now':'এইমাত্র','ago.m':'{n} মিনিট আগে','ago.h':'{n} ঘণ্টা আগে','ago.d':'{n} দিন আগে',
+'home.ready':'{n}টি মাইনার ক্লেইমের জন্য প্রস্তুত','home.ready_t':'এখনই রিওয়ার্ড ক্লেইম করুন।','home.next':'পরবর্তী রিওয়ার্ড','go_mining':'মাইনিং-এ যান',
+'mining.none':'কোনো সক্রিয় মাইনার নেই','mining.none_t':'মাইনিং শুরু করতে একটি প্ল্যান বেছে নিন।','mining.rule':'প্রতিটি মাইনারের নিজস্ব সাইকেল আছে। ক্লেইমের পর পরবর্তী সাইকেল ক্লেইমের সময় থেকে শুরু হয়। ক্লেইম অনুমোদিত কিনা তা সার্ভার ঠিক করে।',
+'ready':'প্রস্তুত','claim':'রিওয়ার্ড ক্লেইম','not_ready':'এখনো প্রস্তুত নয়','claimed':'রিওয়ার্ড ক্লেইম হয়েছে','claimed_t':'সার্ভার আপনার ক্লেইম নিশ্চিত করেছে।','claim_fail':'ক্লেইম ব্যর্থ','next_cycle':'পরবর্তী সাইকেল','reward_cycle':'রিওয়ার্ড / সাইকেল','cycles':'সাইকেল','cycle':'সাইকেল','expires':'মেয়াদ শেষ','never':'কখনো না','expired_miners':'মেয়াদ শেষ মাইনার','hours':'ঘণ্টা','days':'দিন','unlimited':'সীমাহীন',
+'free':'ফ্রি','paid':'পেইড','popular':'জনপ্রিয়','owned':'আপনার আছে ×{n}','limit':'সীমা পূর্ণ','price':'মূল্য','validity':'মেয়াদ','plan':'প্ল্যান','max_reward':'সর্বোচ্চ মোট রিওয়ার্ড','max_owned':'প্রতি ইউজার সর্বোচ্চ','buy':'প্ল্যান কিনুন',
+'plans.risk':'রিওয়ার্ড অ্যাডমিন দ্বারা নির্ধারিত এবং নিশ্চিত নয়। যে অর্থ হারালে ক্ষতি নেই কেবল তা-ই ব্যবহার করুন।','empty.plans':'কোনো প্ল্যান নেই','empty.plans_t':'এই ফিল্টারে কোনো প্ল্যান নেই।',
+'insufficient':'ব্যালেন্স অপর্যাপ্ত','insufficient_t':'আপনার {need} দরকার কিন্তু আছে {have}। আগে ডিপোজিট করুন।','confirm_buy':'ক্রয় নিশ্চিত করুন','confirm_buy_t':'সার্ভার নিশ্চিত করার পরেই অর্থ কাটা হবে।','balance_after':'পরবর্তী ব্যালেন্স','buy_ok':'প্ল্যান সক্রিয় হয়েছে','buy_ok_t':'আপনার নতুন মাইনার সক্রিয়। প্রথম সাইকেল শুরু হয়েছে।','buy_fail':'ক্রয় ব্যর্থ',
+'empty.tx':'এখনো কোনো লেনদেন নেই','empty.tx_t':'আপনার কার্যক্রম এখানে দেখা যাবে।','empty.notif':'কোনো নোটিফিকেশন নেই','empty.notif_t':'সব দেখা হয়ে গেছে।',
+'dep.off':'ডিপোজিট বন্ধ','dep.off_t':'ডিপোজিট এখন বন্ধ আছে।','dep.auto':'ক্রিপ্টো','dep.manual':'ম্যানুয়াল','dep.network':'নেটওয়ার্ক','dep.method':'মাধ্যম','dep.address':'ডিপোজিট ঠিকানা','dep.memo':'মেমো / ট্যাগ (আবশ্যক)','dep.warn':'{n} নেটওয়ার্কে শুধু {c} পাঠান। অন্য অ্যাসেট বা নেটওয়ার্কে হারিয়ে যেতে পারে।','dep.send_to':'পাঠান','dep.acc_type':'অ্যাকাউন্টের ধরন','dep.manual_t':'টাকা পাঠিয়ে নিচে ট্রানজেকশন আইডি জমা দিন। যাচাইয়ের পরেই ব্যালেন্স আপডেট হবে।','dep.txid':'ট্রানজেকশন আইডি','dep.txid_ph':'ট্রানজেকশন হ্যাশ / TrxID পেস্ট করুন','dep.proof':'পেমেন্ট স্ক্রিনশট (ঐচ্ছিক)','dep.proof_pick':'ছবি বাছাই করতে ট্যাপ করুন','dep.proof_big':'ছবি অনেক বড় (সর্বোচ্চ ১.৫ MB)','dep.submit':'ডিপোজিট রিকোয়েস্ট জমা দিন','dep.confirm':'ডিপোজিট রিকোয়েস্ট নিশ্চিত করুন','dep.confirm_t':'নিশ্চিত হন যে আপনি পেমেন্ট পাঠিয়েছেন।','dep.sent':'রিকোয়েস্ট জমা হয়েছে','dep.sent_t':'আপনার ডিপোজিট যাচাইয়ের অপেক্ষায়। অনুমোদন না হওয়া পর্যন্ত ব্যালেন্স বদলাবে না।','dep.fail':'ডিপোজিট রিকোয়েস্ট ব্যর্থ','dep.requests':'আপনার ডিপোজিট রিকোয়েস্ট','dep.none':'কোনো ডিপোজিট রিকোয়েস্ট নেই','dep.none_t':'জমা দেওয়া রিকোয়েস্ট এখানে দেখা যাবে।',
+'wd.off':'উইথড্র বন্ধ','wd.off_t':'উইথড্র এখন বন্ধ আছে।','wd.address':'ওয়ালেট ঠিকানা','wd.address_ph':'গন্তব্য ঠিকানা পেস্ট করুন','wd.number':'অ্যাকাউন্ট নম্বর','wd.to':'প্রাপক','wd.rule':'জমা দেওয়ার সময় অ্যামাউন্ট রিজার্ভ হয় এবং টিম রিভিউ করে। বাতিল হলে ওয়ালেটে ফেরত আসে।','wd.submit':'উইথড্র রিকোয়েস্ট','wd.confirm':'উইথড্র নিশ্চিত করুন','wd.confirm_t':'ঠিকানা ভালো করে দেখুন। ট্রান্সফার ফেরানো যায় না।','wd.sent':'রিকোয়েস্ট জমা হয়েছে','wd.sent_t':'আপনার উইথড্র রিভিউয়ের অপেক্ষায়। সিদ্ধান্ত না হওয়া পর্যন্ত অ্যামাউন্ট রিজার্ভ থাকবে।','wd.fail':'উইথড্র ব্যর্থ','wd.requests':'আপনার উইথড্র','wd.none':'কোনো উইথড্র নেই','wd.none_t':'জমা দেওয়া রিকোয়েস্ট এখানে দেখা যাবে।',
+'v.amount':'সঠিক পরিমাণ দিন','v.min':'সর্বনিম্ন {n}','v.max':'সর্বোচ্চ {n}','v.balance':'ব্যালেন্স অপর্যাপ্ত','v.fee':'পরিমাণ ফি-এর চেয়ে বেশি হতে হবে','v.address':'এই নেটওয়ার্কের জন্য ঠিকানা সঠিক নয়','v.txid':'সঠিক ট্রানজেকশন আইডি দিন','v.required':'এই ঘরটি খুব ছোট',
+'ref.off':'রেফারেল বন্ধ','ref.off_t':'রেফারেল প্রোগ্রাম এখন বন্ধ আছে।','ref.code':'আপনার রেফারেল কোড','ref.count':'রেফারেল','ref.commission':'কমিশন','ref.how':'অ্যাডমিন নির্ধারিত অনুযায়ী আপনার রেফারেলের কার্যক্রমে {p}% কমিশন এবং {b} বোনাস পান।','ref.earned':'মোট আয়','ref.list':'আপনার রেফারেল','ref.none':'এখনো কোনো রেফারেল নেই','ref.none_t':'বন্ধুদের আমন্ত্রণ জানাতে লিংক শেয়ার করুন।','ref.share_text':'Trusted Mining-এ যোগ দিন!',
+'lb.off':'লিডারবোর্ড বন্ধ','lb.off_t':'লিডারবোর্ড এখন বন্ধ আছে।','lb.weekly':'সাপ্তাহিক','lb.all':'সর্বকালের','lb.your':'আপনার র‍্যাংক','lb.demo':'ডেমো ডেটা — অন্য নামগুলো সিমুলেটেড।',
+'notif':'নোটিফিকেশন','mark_all':'সব পড়া হয়েছে',
+'sp.tickets':'আমার টিকিট','sp.faq':'সাধারণ প্রশ্ন','sp.contact':'যোগাযোগ','sp.new':'নতুন টিকিট','sp.none':'কোনো টিকিট নেই','sp.none_t':'সাহায্য দরকার? একটি টিকিট খুলুন।','sp.category':'ক্যাটাগরি','sp.subject':'বিষয়','sp.message':'বার্তা','sp.message_ph':'আপনার সমস্যা লিখুন','sp.sent':'টিকিট তৈরি হয়েছে','sp.reply':'উত্তর লিখুন…','sp.closed':'এই টিকিট বন্ধ।','sp.hours':'সাপোর্টের সময়','sp.channel':'অফিসিয়াল চ্যানেল',
+'cat.deposit':'ডিপোজিট','cat.withdraw':'উইথড্র','cat.mining':'মাইনিং','cat.account':'অ্যাকাউন্ট','cat.other':'অন্যান্য',
+'tx.deposit':'ডিপোজিট','tx.withdraw':'উইথড্র','tx.mining':'মাইনিং রিওয়ার্ড','tx.purchase':'প্ল্যান ক্রয়','tx.referral':'রেফারেল','tx.bonus':'বোনাস',
+'st.pending':'অপেক্ষমাণ','st.processing':'প্রক্রিয়াধীন','st.completed':'সম্পন্ন','st.approved':'অনুমোদিত','st.rejected':'প্রত্যাখ্যাত','st.failed':'ব্যর্থ','st.expired':'মেয়াদোত্তীর্ণ','st.active':'সক্রিয়','st.open':'খোলা','st.progress':'চলমান','st.resolved':'সমাধান','st.closed':'বন্ধ','st.cancelled':'বাতিল','st.suspended':'স্থগিত',
+'acc.name':'নাম','acc.username':'ইউজারনেম','acc.joined':'যোগদান','acc.status':'অবস্থা',
+'set.notif':'নোটিফিকেশন','set.notif_t':'অ্যাপের ভেতরে নোটিফিকেশন পান','set.haptic':'হ্যাপটিক ফিডব্যাক','set.haptic_t':'অ্যাকশনে ভাইব্রেশন',
+'legal.terms':'সেবার শর্তাবলি','legal.privacy':'গোপনীয়তা নীতি','legal.risk':'ঝুঁকি প্রকাশ','legal.none':'পাওয়া যায়নি।',
+'state.offline':'সংযোগ নেই','state.offline_t':'ইন্টারনেট সংযোগ দেখে আবার চেষ্টা করুন।','state.error':'কিছু ভুল হয়েছে','state.maint':'রক্ষণাবেক্ষণ চলছে','state.maint_t':'আমরা সেবা উন্নত করছি। একটু পরে আবার আসুন।','state.susp':'অ্যাকাউন্ট স্থগিত','state.susp_t':'আপনার অ্যাকাউন্ট স্থগিত। সাহায্যের জন্য সাপোর্টে যোগাযোগ করুন।','state.auth':'সেশন শেষ','state.auth_t':'অনুগ্রহ করে টেলিগ্রাম থেকে অ্যাপ আবার খুলুন।','state.404':'পেজ পাওয়া যায়নি','state.404_t':'এই পেজটি নেই।',
+'err.generic':'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।','err.network':'সংযোগ নেই। ইন্টারনেট দেখে আবার চেষ্টা করুন।','err.timeout':'রিকোয়েস্টের সময় শেষ। আবার চেষ্টা করুন।','err.server':'সার্ভার ত্রুটি। পরে চেষ্টা করুন।','err.maintenance':'সেবা রক্ষণাবেক্ষণে আছে।','err.suspended':'আপনার অ্যাকাউন্ট স্থগিত।','err.unauthorized':'সেশন শেষ। অ্যাপ আবার খুলুন।','err.rate_limited':'অনেক বেশি রিকোয়েস্ট। একটু ধীরে।',
+'err.insufficient_funds':'ব্যালেন্স অপর্যাপ্ত।','err.not_ready':'এই মাইনার এখনো প্রস্তুত নয়।','err.miner_expired':'এই মাইনারের মেয়াদ শেষ।','err.limit_reached':'এই প্ল্যানের সীমায় পৌঁছেছেন।','err.invalid_amount':'পরিমাণ সঠিক নয়।','err.below_min':'পরিমাণ সর্বনিম্নের চেয়ে কম।','err.above_max':'পরিমাণ সর্বোচ্চের চেয়ে বেশি।','err.invalid_address':'ঠিকানা সঠিক নয়।','err.duplicate_txid':'এই ট্রানজেকশন আইডি আগেই জমা দেওয়া হয়েছে।','err.invalid_txid':'ট্রানজেকশন আইডি সঠিক নয়।','err.not_found':'পাওয়া যায়নি।','err.plan_unavailable':'এই প্ল্যান পাওয়া যাচ্ছে না।','err.currency_disabled':'এই কারেন্সি বন্ধ।','err.validation':'আপনার ইনপুট দেখুন।',
+'demo.bar':'ডেমো মোড — সিমুলেটেড ডেটা, আসল টাকা নয়','demo.tools':'ডেমো টুলস','demo.sub':'প্রতিটি অবস্থা টেস্ট করতে সার্ভারের ঘটনা সিমুলেট করুন।','demo.done':'সম্পন্ন',
+'dt.appdep':'ডিপোজিট অনুমোদন','dt.rejdep':'ডিপোজিট বাতিল','dt.appwd':'উইথড্র অনুমোদন','dt.rejwd':'উইথড্র বাতিল','dt.maint':'রক্ষণাবেক্ষণ টগল','dt.offline':'অফলাইন টগল','dt.fail':'পরের রিকোয়েস্ট ব্যর্থ','dt.suspend':'সাসপেন্ড টগল','dt.reset':'ডেটা রিসেট'
+};
+TM.dict.en=en;TM.dict.bn=bn;
+})();
+
+(function(){'use strict';
+const TM=window.TM;
+const api=TM.api={token:null,
+ async req(method,path,body,opts){opts=opts||{};
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),TM.CFG.TIMEOUT);
+  const h={'Content-Type':'application/json','X-Telegram-Init-Data':TM.tg.initData()};
+  if(api.token)h.Authorization='Bearer '+api.token;if(opts.idem)h['Idempotency-Key']=opts.idem;
+  let res;
+  try{res=await fetch(TM.CFG.API_BASE.replace(/\/$/,'')+path,{method,headers:h,body:body&&method!=='GET'?JSON.stringify(body):undefined,signal:ctl.signal,credentials:'omit'})}
+  catch(e){clearTimeout(to);const er=new Error(e.name==='AbortError'?'timeout':'network');er.code=e.name==='AbortError'?'timeout':'network';er.status=0;throw er}
+  clearTimeout(to);
+  let j=null;try{j=await res.json()}catch(e){}
+  if(j&&j.serverTime)TM.S.skew=j.serverTime-Date.now();else{const dh=res.headers.get('Date');if(dh)TM.S.skew=new Date(dh).getTime()-Date.now()}
+  if(!res.ok||(j&&j.ok===false)){const er=new Error((j&&j.message)||'error');er.status=res.status;er.code=(j&&j.code)||(res.status===401?'unauthorized':res.status===403?'suspended':res.status===503?'maintenance':res.status===429?'rate_limited':'server');throw er}
+  return j&&'data' in j?j.data:j},
+ get:(p)=>api.req('GET',p),
+ post:(p,b,o)=>api.req('POST',p,b||{},o),
+ patch:(p,b)=>api.req('PATCH',p,b||{}),
+ demo:()=>Promise.resolve(),
+ errMsg(e){const k='err.'+(e&&e.code);const m=TM.dict.en[k]?TM.t(k):null;return m||TM.t('err.generic')}
+};
+})();
+
+(function(){'use strict';
+const TM=window.TM,{t,esc,ic,$}=TM,ACT=TM.ACT,ui=TM.ui={};
+ui.toast=(m,type)=>{const b=$('#toasts');const e=document.createElement('div');e.className='toast '+(type||'');e.innerHTML=ic(type==='err'?'alert':type==='ok'?'check':'info')+'<span>'+esc(m)+'</span>';b.appendChild(e);setTimeout(()=>e.remove(),3300)};
+ui.pill=s=>'<span class="pill '+esc(s)+'">'+esc(t('st.'+s))+'</span>';
+ui.empty=(icon,title,text,cta)=>'<div class="empty"><div class="eic">'+ic(icon)+'</div><b>'+esc(title)+'</b><p>'+esc(text||'')+'</p>'+(cta||'')+'</div>';
+ui.skel=n=>{let h='';for(let i=0;i<(n||3);i++)h+='<div class="sk li"></div>';return h};
+ui.full=(icon,title,text,btn,act,tone)=>'<div class="fullstate"><div class="eic '+(tone||'')+'">'+ic(icon)+'</div><h2>'+esc(title)+'</h2><p>'+esc(text)+'</p>'+(btn?'<button class="btn" data-act="'+act+'">'+esc(btn)+'</button>':'')+'</div>';
+ui.err=e=>{const c=e&&e.code;const off=c==='network'||c==='timeout';return ui.empty(off?'wifioff':'alert',t(off?'state.offline':'state.error'),off?t('state.offline_t'):TM.api.errMsg(e),'<button class="btn sm" data-act="retry">'+ic('refresh')+t('retry')+'</button>')};
+ui.busy=(b,on)=>{if(!b)return;if(on){b._h=b.innerHTML;b.disabled=true;b.innerHTML=ic('loader','spin')+'<span>'+t('wait')+'</span>'}else{b.disabled=false;if(b._h!=null)b.innerHTML=b._h}};
+ui.field=(id,msg)=>{const f=document.getElementById('f-'+id);if(!f)return;f.classList.toggle('bad',!!msg);const m=f.querySelector('.errm');if(m)m.textContent=msg||''};
+const ov=()=>$('#overlay');
+ui.close=()=>{const o=ov();o.classList.remove('show');o.innerHTML='';ui._acts=null};
+ui.sheet=(html)=>{const o=ov();o.innerHTML='<div class="scrim" data-act="closeov"></div><div class="sheet" role="dialog"><div class="grab"></div>'+html+'</div>';o.classList.add('show');TM.tg.haptic('light')};
+ui.dialog=o=>{const el=ov();ui._acts=o.actions||[];
+ el.innerHTML='<div class="scrim" data-act="'+(o.lock?'noop':'closeov')+'"></div><div class="dlg" role="dialog"><div class="bigic '+(o.tone||'')+'">'+ic(o.icon||'info')+'</div><h3>'+esc(o.title)+'</h3>'+(o.text?'<p>'+esc(o.text)+'</p>':'')+
+ (o.kv?'<div class="kvs">'+o.kv.map(r=>'<div class="kv"><span>'+esc(r[0])+'</span><b>'+esc(r[1])+'</b></div>').join('')+'</div>':'')+
+ '<div class="btns" style="margin-top:18px">'+ui._acts.map((a,i)=>'<button class="btn '+(a.cls||'')+'" data-dlg="'+i+'">'+esc(a.label)+'</button>').join('')+'</div></div>';
+ el.classList.add('show');if(o.tone==='ok')TM.tg.haptic('success');else if(o.tone==='err')TM.tg.haptic('error')};
+ui.alert=(tone,title,text,kv)=>ui.dialog({icon:tone==='ok'?'check':tone==='err'?'alert':'info',tone,title,text,kv,actions:[{label:t('ok'),cls:tone==='ok'?'':'sec2'}]});
+ui.confirm=(o)=>ui.dialog({icon:o.icon||'shield',title:o.title,text:o.text,kv:o.kv,lock:true,actions:[{label:t('cancel'),cls:'ghost'},{label:o.label||t('confirm'),fn:o.fn,keep:false}]});
+/* delegated events */
+document.addEventListener('click',e=>{
+ const d=e.target.closest('[data-dlg]');
+ if(d&&ui._acts){const a=ui._acts[+d.dataset.dlg];(async()=>{if(a&&a.fn){ui.busy(d,true);let r;try{r=await a.fn(d)}finally{ui.busy(d,false)}if(r===false)return}ui.close()})();return}
+ const el=e.target.closest('[data-act]');
+ if(el){const f=ACT[el.dataset.act];if(f){e.preventDefault();TM.tg.haptic('light');f(el.dataset,el,e)}return}
+ const g=e.target.closest('[data-go]');if(g){e.preventDefault();ui.close();location.hash=g.dataset.go}
+});
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset&&el.dataset.bind){TM.form[el.dataset.bind]=el.value;const f=el.closest('.fld');if(f)f.classList.remove('bad');if(el.dataset.live&&ACT[el.dataset.live])ACT[el.dataset.live](el.dataset,el)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov().classList.contains('show'))ui.close()});
+TM.form={};
+ACT.closeov=()=>ui.close();ACT.noop=()=>{};
+ACT.copy=async(d,el)=>{const ok=await TM.tg.copy(d.v);ui.toast(ok?t('copied'):t('copy_fail'),ok?'ok':'err');if(ok)TM.tg.haptic('success')};
+ACT.back=()=>{if(history.length>1)history.back();else location.hash='#/home'};
+ACT.link=(d)=>{if(d.v)(d.tg?TM.tg.openTG:TM.tg.open)(d.v)};
+})();
+
+(function(){'use strict';
+const TM=window.TM,{t,esc,ic,fmt,money,L,dt,$}=TM,api=TM.api,S=TM.S,ui=TM.ui,ACT=TM.ACT,pages=TM.pages={};
+const curs=()=>S.cfg.currencies.filter(c=>c.enabled);
+const getCur=()=>{const l=curs();if(!l.find(c=>c.code===S.cur))S.cur=TM.ls.get('tm_cur',null);if(!l.find(c=>c.code===S.cur))S.cur=l[0]&&l[0].code;return S.cur};
+TM.top=(title,right)=>'<div class="topbar"><button class="ibtn" data-act="back" aria-label="'+esc(t('back'))+'">'+ic('back')+'</button><h1>'+esc(title)+'</h1>'+(right||'')+'</div>';
+const chips=(act,sel,all)=>'<div class="cursel">'+(all?'<button class="chip '+(sel==='all'?'on':'')+'" data-act="'+act+'" data-v="all">'+t('all')+'</button>':'')+curs().map(c=>'<button class="chip '+(c.code===sel?'on':'')+'" data-act="'+act+'" data-v="'+c.code+'">'+c.code+'</button>').join('')+'</div>';
+TM.chips=chips;
+const txIcon={deposit:['down','in'],withdraw:['up','out'],mining:['cpu','or'],purchase:['layers','out'],referral:['users','in'],bonus:['gift','in'],adjustment:['coins',''],refund:['refresh','in']};
+const tk=TM.tk=k=>TM.dict.en['tx.'+k]?t('tx.'+k):k;
+TM.txRow=x=>{const i=txIcon[x.type]||['coins',''];return '<button class="li" data-act="txd" data-id="'+esc(x.id)+'"><div class="ico '+i[1]+'">'+ic(i[0])+'</div><div class="m"><b>'+esc(tk(x.type))+'</b><span>'+esc(TM.ago(x.ts))+' · '+esc(TM.dt(x.ts))+'</span></div><div class="r"><b class="num '+(x.amount>0?'ok':'')+'">'+money(x.amount,x.currency,true)+'</b>'+ui.pill(x.status)+'</div></button>'};
+TM.txCache={};
+ACT.txd=(d)=>{const x=TM.txCache[d.id];if(!x)return;
+ ui.sheet('<h3>'+ic((txIcon[x.type]||['coins'])[0])+esc(tk(x.type))+'</h3><div class="sub">'+ui.pill(x.status)+'</div><div class="kv"><span>'+t('amount')+'</span><b class="num">'+money(x.amount,x.currency,true)+'</b></div><div class="kv"><span>'+t('date')+'</span><b>'+esc(dt(x.ts))+'</b></div><div class="kv"><span>'+t('ref')+'</span><b>'+esc(x.id)+'</b></div>'+(x.note?'<div class="kv"><span>'+t('note')+'</span><b>'+esc(x.note)+'</b></div>':'')+'<div class="btns"><button class="btn sec2" data-act="closeov">'+t('close')+'</button></div>')};
+const cacheTx=a=>a.forEach(x=>TM.txCache[x.id]=x);
+
+/* ---------- HOME ---------- */
+pages.home={nav:'home',root:true,async render(){
+ const sf=(p,d)=>p.catch(e=>{if(e.code==='feature_disabled'||e.code==='restricted')return d;throw e});
+ const [w,mi,h]=await Promise.all([sf(api.get('/wallet'),{wallets:[]}),sf(api.get('/mining'),{miners:[],enabled:false}),sf(api.get('/history?limit=4'),{items:[],total:0})]);
+ S.wallets=w.wallets;cacheTx(h.items);const c=getCur()||'',W=w.wallets.find(x=>x.currency===c)||w.wallets[0]||{available:0,locked:0,mined:0,deposited:0,withdrawn:0};
+ const hc=S.cfg.home||{},hs=hc.sections||{},fo=k=>TM.featOn(k);
+ const act=mi.miners.filter(m=>m.status==='active'),now=TM.now(),ready=act.filter(m=>now>=m.nextClaimAt),next=act.filter(m=>now<m.nextClaimAt).sort((a,b)=>a.nextClaimAt-b.nextClaimAt)[0];
+ const app=S.cfg.app,ann=hs.announcements===false?[]:(app.announcements||[]),bans=(hc.banners||[]).filter(b=>b&&b.enabled!==false&&(L(b.title)||L(b.text)));
+ let mine;
+ if(ready.length)mine='<div class="card miner ready"><div class="row"><div class="qi" style="width:46px;height:46px;border-radius:15px;display:grid;place-items:center;background:var(--orange-soft);color:var(--orange);border:1px solid var(--orange-line)">'+ic('bolt')+'</div><div class="grow"><b>'+t('home.ready',{n:ready.length})+'</b><div class="tiny">'+t('home.ready_t')+'</div></div></div><button class="btn" style="margin-top:14px" data-go="#/mining">'+ic('cpu')+t('go_mining')+'</button></div>';
+ else if(next)mine='<div class="card"><div class="row between"><div><div class="tiny">'+t('home.next')+'</div><div class="cd big" style="font-size:1.6rem" data-t="'+next.nextClaimAt+'" data-rl="1">'+TM.hms(next.nextClaimAt-now)+'</div></div><button class="btn sm sec2" data-go="#/mining">'+t('open')+'</button></div></div>';
+ else mine='<div class="card">'+ui.empty('cpu',t('mining.none'),t('mining.none_t'),'<button class="btn sm" data-go="#/plans">'+t('nav.plans')+'</button>')+'</div>';
+ const QA={plans:['layers','nav.plans'],referral:['users','referral'],leaderboard:['trophy','leaderboard'],history:['history','history'],support:['help','support'],wallet:['wallet','nav.wallet'],deposit:['down','deposit'],withdraw:['up','withdraw'],mining:['cpu','nav.mining'],notifications:['bell','nav.notifications']};
+ const qoff=k=>!fo(k)||(k==='referral'&&!S.cfg.referral.enabled)||(k==='leaderboard'&&!S.cfg.leaderboard.enabled);
+ const qlist=(hc.quickActions&&hc.quickActions.length?hc.quickActions:['plans','referral','leaderboard','history','support','wallet']).filter(k=>QA[k]);
+ const qh=qlist.map(k=>{const off=qoff(k);return '<button class="qa'+(off?' off':'')+'" '+(off?'disabled':'data-go="#/'+k+'"')+'><span class="qi">'+ic(QA[k][0])+'</span>'+esc(TM.featTitle(k,t(QA[k][1])))+'</button>'}).join('');
+ return '<div class="homebar"><div class="brand"><div class="logo">'+(app.logo?'<img alt="" src="'+esc(app.logo)+'">':ic('bolt'))+'</div><div><b>'+esc(app.name)+'</b><small>'+esc(L(app.tagline))+'</small></div></div><button class="ibtn" data-go="#/notifications" aria-label="'+t('nav.notifications')+'">'+ic('bell')+(S.unread?'<span class="dotb">'+S.unread+'</span>':'')+'</button><button class="avatar" data-go="#/profile" aria-label="'+t('nav.profile')+'">'+TM.avatar(S.me)+'</button></div>'+
+ (L(hc.welcome)?'<div class="note or">'+ic('info')+'<span>'+esc(L(hc.welcome))+'</span></div>':'')+bans.concat(ann).map(a=>'<div class="banner"'+(a.page?' data-go="#/'+esc(a.page)+'"':'')+'>'+(a.image?'<img alt="" src="'+esc(a.image)+'" style="width:100%;border-radius:10px;margin-bottom:8px">':'')+'<b>'+esc(L(a.title))+'</b><span>'+esc(L(a.text))+'</span></div>').join('')+
+ (hs.balance===false?'':'<div class="card hero">'+chips('setcur',c)+'<div class="tiny">'+t('available')+'</div><div class="big num">'+fmt(W.available,c)+'<small>'+c+'</small></div><div class="grid3" style="margin-top:14px"><div class="stat"><span>'+t('locked')+'</span><b class="num">'+fmt(W.locked,c)+'</b></div><div class="stat"><span>'+t('mined')+'</span><b class="num">'+fmt(W.mined,c)+'</b></div><div class="stat"><span>'+t('deposited')+'</span><b class="num">'+fmt(W.deposited,c)+'</b></div></div><div class="tiny" style="margin-top:10px">'+t('per_currency')+'</div></div>')+
+ (w.wallets.length?'<div class="btns" style="margin-bottom:14px"><button class="btn" data-go="#/deposit" '+(fo('deposit')?'':'disabled')+'>'+ic('down')+t('deposit')+'</button><button class="btn sec2" data-go="#/withdraw" '+(fo('withdraw')?'':'disabled')+'>'+ic('up')+t('withdraw')+'</button></div>':'<div class="note">'+ic('info')+'<span>'+t('state.nosetup_t')+'</span></div>')+
+ (hs.mining===false||!fo('mining')?'':mine)+(hs.quick===false?'':'<div class="qgrid">'+qh+'</div>')+
+ (hs.recent===false||!fo('history')?'':'<div class="sec">'+t('recent')+'<a href="#/history">'+t('see_all')+'</a></div>'+(h.items.length?h.items.map(TM.txRow).join(''):ui.empty('inbox',t('empty.tx'),t('empty.tx_t'))))},
+};
+ACT.setcur=(d)=>{S.cur=d.v;TM.ls.set('tm_cur',d.v);TM.route.refresh(true)};
+TM.avatar=u=>u&&u.photo?'<img alt="" src="'+esc(u.photo)+'">':esc(((u&&u.name)||'?').trim().charAt(0).toUpperCase());
+
+/* ---------- MINING ---------- */
+const minerCard=m=>{const p=m.plan,now=TM.now(),act=m.status==='active',ready=act&&now>=m.nextClaimAt,cyc=p.cycleHours*36e5,start=m.nextClaimAt-cyc,pr=ready?100:Math.max(0,Math.min(100,(now-start)/cyc*100));
+ const cap=p.cap>0?'<div class="bar" style="margin:8px 0 4px"><b style="width:'+Math.min(100,m.earned/p.cap*100)+'%"></b></div><div class="tiny">'+fmt(m.earned,p.rewardCurrency)+' / '+fmt(p.cap,p.rewardCurrency)+' '+p.rewardCurrency+'</div>':'';
+ return '<div class="card miner '+(ready?'ready':'')+'"><div class="row" style="align-items:flex-start">'+(act?'<div class="ring" data-s="'+start+'" data-t="'+m.nextClaimAt+'" style="--p:'+pr+'"><i><b class="cd" data-t="'+m.nextClaimAt+'" data-rl="'+(ready?0:1)+'">'+(ready?t('ready'):TM.hms(m.nextClaimAt-now))+'</b>'+t('next_cycle')+'</i></div>':'<div class="cur-ic">'+ic('clock')+'</div>')+
+ '<div class="grow"><div class="row between" style="gap:6px"><b>'+esc(L(p.name))+'</b>'+ui.pill(m.status)+'</div><div class="kv"><span>'+t('reward_cycle')+'</span><b class="num">'+money(p.reward,p.rewardCurrency)+'</b></div><div class="kv"><span>'+t('cycles')+'</span><b>'+m.cycles+'</b></div><div class="kv"><span>'+t('expires')+'</span><b>'+(m.expiresAt?esc(TM.d(m.expiresAt)):t('never'))+'</b></div></div></div>'+cap+
+ (act?'<button class="btn" style="margin-top:12px" data-act="claim" data-id="'+esc(m.id)+'" '+(ready?'':'disabled')+'>'+ic(ready?'bolt':'clock')+(ready?t('claim'):t('not_ready'))+'</button>':'')+'</div>'};
+pages.mining={nav:'mining',root:true,async render(){
+ const r=await api.get('/mining'),a=r.miners.filter(m=>m.status==='active'),e=r.miners.filter(m=>m.status!=='active'),mc=S.cfg.mining||{};
+ if(r.enabled===false)return '<div class="topbar"><h1>'+t('nav.mining')+'</h1></div>'+ui.empty('lock',t('mining.off'),t('mining.off_t'));
+ return '<div class="topbar"><h1>'+t('nav.mining')+'</h1></div>'+(L(mc.notice)?'<div class="note warn">'+ic('alert')+'<span>'+esc(L(mc.notice))+'</span></div>':'')+'<div class="note">'+ic('info')+'<span>'+esc(L(mc.rulesText)||t('mining.rule'))+'</span></div>'+
+ (a.length?a.map(minerCard).join(''):'<div class="card">'+ui.empty('cpu',t('mining.none'),t('mining.none_t'),'<button class="btn sm" data-go="#/plans">'+t('nav.plans')+'</button>')+'</div>')+
+ (e.length?'<div class="sec">'+t('expired_miners')+'</div>'+e.map(minerCard).join(''):'')}};
+ACT.claim=(d,el)=>{if(S.cfg.mining&&S.cfg.mining.confirmClaim)return ui.confirm({icon:'bolt',title:t('claim'),text:t('claim_confirm_t'),label:t('claim'),fn:async()=>{await doClaim(d,null);return true}});doClaim(d,el)};
+const doClaim=async(d,el)=>{const k='claim:'+d.id;ui.busy(el,true);
+ try{const r=await api.post('/mining/'+d.id+'/claim',{},{idem:TM.idem(k)});TM.idemClear(k);
+  setTimeout(()=>ui.dialog({icon:'bolt',tone:'ok',title:t('claimed'),text:t('claimed_t'),kv:[[t('reward'),money(r.reward,r.currency,true)],[t('next_cycle'),TM.dt(r.miner.nextClaimAt)]],actions:[{label:t('ok')}]}),50);TM.route.refresh(true)}
+ catch(e){ui.busy(el,false);if(e.code!=='network'&&e.code!=='timeout')TM.idemClear(k);setTimeout(()=>ui.alert('err',t('claim_fail'),api.errMsg(e)),50);if(e.code==='not_ready'||e.code==='miner_expired')TM.route.refresh(true)}};
+
+/* ---------- PLANS ---------- */
+const planTotal=p=>{const d=TM.dec(p.currency),m=Math.pow(10,d);return Math.round((p.price+p.price*(p.fee||0)/100)*m)/m};
+const planCard=p=>{const total=p.cap>0?p.cap:null,own=p.owned>0,full=own&&p.owned>=p.maxPerUser;
+ return '<div class="card plan"><div class="ph"><div class="pimg">'+(p.image?'<img alt="" src="'+esc(p.image)+'" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">':ic('cpu'))+'</div><div class="grow"><b>'+esc(L(p.name))+'</b><div class="tiny">'+esc(L(p.desc))+'</div></div></div><div class="tags">'+(p.tier==='free'?'<span class="pill free">'+t('free')+'</span>':'<span class="pill paid">'+t('paid')+'</span>')+(p.featured?'<span class="pill featured">'+t('popular')+'</span>':'')+(own?'<span class="pill active">'+t('owned',{n:p.owned})+'</span>':'')+'</div>'+
+ '<div class="grid2"><div class="stat"><span>'+t('price')+'</span><b class="num">'+(p.price>0?money(p.price,p.currency):t('free'))+'</b></div><div class="stat"><span>'+t('reward_cycle')+'</span><b class="num">'+money(p.reward,p.rewardCurrency)+'</b></div><div class="stat"><span>'+t('cycle')+'</span><b>'+p.cycleHours+' '+t('hours')+'</b></div><div class="stat"><span>'+t('validity')+'</span><b>'+(p.durationDays?p.durationDays+' '+t('days'):t('unlimited'))+'</b></div></div>'+
+ '<div class="btns" style="margin-top:14px"><button class="btn sec2" data-act="plan" data-id="'+esc(p.id)+'">'+t('details')+'</button>'+(p.price>0?'<button class="btn" data-act="buy" data-id="'+esc(p.id)+'" '+(full?'disabled':'')+'>'+(full?t('limit'):t('buy'))+'</button>':'')+'</div></div>'};
+let planFilter='all',planCache={};
+pages.plans={nav:'plans',root:true,async render(){
+ const r=await api.get('/plans');r.plans.forEach(p=>planCache[p.id]=p);
+ const list=r.plans.filter(p=>planFilter==='all'||p.currency===planFilter||(planFilter==='free'&&p.tier==='free'));
+ return '<div class="topbar"><h1>'+t('nav.plans')+'</h1></div><div class="cursel"><button class="chip '+(planFilter==='all'?'on':'')+'" data-act="plf" data-v="all">'+t('all')+'</button><button class="chip '+(planFilter==='free'?'on':'')+'" data-act="plf" data-v="free">'+t('free')+'</button>'+curs().map(c=>'<button class="chip '+(planFilter===c.code?'on':'')+'" data-act="plf" data-v="'+c.code+'">'+c.code+'</button>').join('')+'</div>'+
+ '<div class="note warn">'+ic('alert')+'<span>'+t('plans.risk')+'</span></div>'+(list.length?list.map(planCard).join(''):ui.empty('layers',t('empty.plans'),t('empty.plans_t')))}};
+ACT.plf=d=>{planFilter=d.v;TM.route.refresh(true)};
+ACT.plan=d=>{const p=planCache[d.id];if(!p)return;
+ ui.sheet('<h3>'+ic('cpu')+esc(L(p.name))+'</h3><div class="sub">'+esc(L(p.desc))+'</div><div class="kv"><span>'+t('price')+'</span><b>'+(p.price>0?money(p.price,p.currency):t('free'))+'</b></div>'+(p.fee>0?'<div class="kv"><span>'+t('fee')+'</span><b>'+p.fee+'%</b></div>':'')+'<div class="kv"><span>'+t('reward_cycle')+'</span><b>'+money(p.reward,p.rewardCurrency)+'</b></div><div class="kv"><span>'+t('cycle')+'</span><b>'+p.cycleHours+' '+t('hours')+'</b></div><div class="kv"><span>'+t('validity')+'</span><b>'+(p.durationDays?p.durationDays+' '+t('days'):t('unlimited'))+'</b></div>'+(p.cap?'<div class="kv"><span>'+t('max_reward')+'</span><b>'+money(p.cap,p.rewardCurrency)+'</b></div>':'')+'<div class="kv"><span>'+t('max_owned')+'</span><b>'+p.maxPerUser+'</b></div><div style="margin-top:12px">'+(p.perks||[]).map(x=>'<div class="ben">'+ic('check')+'<span>'+esc(L(x))+'</span></div>').join('')+'</div><div class="note warn" style="margin-top:12px">'+ic('alert')+'<span>'+t('plans.risk')+'</span></div><div class="btns"><button class="btn sec2" data-act="closeov">'+t('close')+'</button>'+(p.price>0?'<button class="btn" data-act="buy" data-id="'+esc(p.id)+'">'+t('buy')+'</button>':'')+'</div>')};
+ACT.buy=async d=>{const p=planCache[d.id];if(!p)return;ui.close();
+ let bal=0;try{const w=await api.get('/wallet');bal=(w.wallets.find(x=>x.currency===p.currency)||{}).available||0}catch(e){return ui.alert('err',t('state.error'),api.errMsg(e))}
+ const tot=planTotal(p);
+ if(bal<tot)return ui.dialog({icon:'wallet',tone:'err',title:t('insufficient'),text:t('insufficient_t',{need:money(tot,p.currency),have:money(bal,p.currency)}),actions:[{label:t('cancel'),cls:'ghost'},{label:t('deposit'),fn:()=>{location.hash='#/deposit'}}]});
+ ui.confirm({icon:'layers',title:t('confirm_buy'),text:t('confirm_buy_t'),kv:[[t('plan'),L(p.name)],[t('price'),money(p.price,p.currency)]].concat(p.fee>0?[[t('fee'),p.fee+'%']]:[]).concat([[t('balance_after'),money(bal-tot,p.currency)]]),label:t('buy'),
+  fn:async()=>{const k='buy:'+p.id;try{await api.post('/plans/'+p.id+'/purchase',{},{idem:TM.idem(k)});TM.idemClear(k);setTimeout(()=>ui.dialog({icon:'check',tone:'ok',title:t('buy_ok'),text:t('buy_ok_t'),actions:[{label:t('go_mining'),fn:()=>{location.hash='#/mining'}}]}),50);return true}
+   catch(e){if(e.code!=='network'&&e.code!=='timeout')TM.idemClear(k);setTimeout(()=>ui.alert('err',t('buy_fail'),api.errMsg(e)),50);return true}}})};
+
+/* ---------- WALLET ---------- */
+pages.wallet={nav:'wallet',root:true,async render(){
+ const [w,h]=await Promise.all([api.get('/wallet'),api.get('/history?limit=5&currency='+getCur())]);cacheTx(h.items);const c=getCur()||'',W=w.wallets.find(x=>x.currency===c);
+ if(!W)return '<div class="topbar"><h1>'+t('nav.wallet')+'</h1></div>'+ui.empty('wallet',t('state.nosetup'),t('state.nosetup_t'));
+ return '<div class="topbar"><h1>'+t('nav.wallet')+'</h1></div>'+chips('setcur',c)+
+ '<div class="card hero"><div class="tiny">'+t('available')+' · '+c+'</div><div class="big num">'+fmt(W.available,c)+'<small>'+c+'</small></div><div class="btns" style="margin-top:14px"><button class="btn" data-go="#/deposit">'+ic('down')+t('deposit')+'</button><button class="btn sec2" data-go="#/withdraw">'+ic('up')+t('withdraw')+'</button></div></div>'+
+ '<div class="card"><div class="kv"><span>'+t('locked')+'</span><b class="num">'+money(W.locked,c)+'</b></div><div class="kv"><span>'+t('deposited')+'</span><b class="num">'+money(W.deposited,c)+'</b></div><div class="kv"><span>'+t('withdrawn')+'</span><b class="num">'+money(W.withdrawn,c)+'</b></div><div class="kv"><span>'+t('mined')+'</span><b class="num">'+money(W.mined,c)+'</b></div></div>'+
+ '<div class="sec">'+t('all_wallets')+'</div>'+w.wallets.map(x=>'<button class="wcard" style="width:100%;text-align:left" data-act="setcur" data-v="'+x.currency+'"><div class="cur-ic">'+esc(x.currency.slice(0,3))+'</div><div class="grow"><b>'+esc(x.currency)+'</b><div class="tiny">'+esc((S.cfg.currencies.find(y=>y.code===x.currency)||{}).name||'')+'</div></div><div style="text-align:right"><b class="num">'+fmt(x.available,x.currency)+'</b>'+(x.locked?'<div class="tiny">'+t('locked')+' '+fmt(x.locked,x.currency)+'</div>':'')+'</div></button>').join('')+
+ '<div class="sec">'+t('recent')+'<a href="#/history">'+t('see_all')+'</a></div>'+(h.items.length?h.items.map(TM.txRow).join(''):ui.empty('inbox',t('empty.tx'),t('empty.tx_t')))}};
+})();
+
+(function(){'use strict';
+const TM=window.TM,{t,esc,ic,fmt,money,L,dt,$}=TM,api=TM.api,S=TM.S,ui=TM.ui,ACT=TM.ACT,pages=TM.pages,F=()=>TM.form;
+const curs=()=>S.cfg.currencies.filter(c=>c.enabled);
+const cfgOf=c=>S.cfg.currencies.find(x=>x.code===c);
+const fld=(id,label,inner,help)=>'<div class="fld" id="f-'+id+'"><label>'+esc(label)+'</label>'+inner+(help?'<div class="help">'+help+'</div>':'')+'<div class="errm"></div></div>';
+const isNet=e=>e&&(e.code==='network'||e.code==='timeout');
+const inst=(...a)=>a.filter(Boolean).map(x=>'<div class="note">'+ic('info')+'<span style="white-space:pre-wrap">'+esc(x)+'</span></div>').join('');
+const okAmt=(s,d)=>{const m=/^\d+(?:\.(\d+))?$/.exec(s);return !!m&&(!m[1]||m[1].length<=d)};
+const lim=(o,c)=>(o.min>0?t('min')+' '+money(o.min,c):'')+(o.max>0?(o.min>0?' · ':'')+t('max')+' '+money(o.max,c):'')+((o.feePct||o.feeFlat)?(o.min>0||o.max>0?' · ':'')+t('fee')+' '+(o.feePct?o.feePct+'%':'')+(o.feePct&&o.feeFlat?' + ':'')+(o.feeFlat?money(o.feeFlat,c):''):'');
+const catL=c=>TM.dict.en['cat.'+c]?t('cat.'+c):c;
+
+/* ---------- DEPOSIT ---------- */
+let dep;const depReset=()=>{dep={cur:null,mode:null,opt:null};TM.form={};};
+const depModes=c=>{const m=[];if(c.deposit.auto&&c.deposit.auto.networks.length)m.push('auto');if(c.deposit.manual&&c.deposit.manual.length)m.push('manual');return m};
+function depInit(){const list=curs().filter(c=>c.deposit.enabled&&depModes(c).length);if(!list.length)return false;
+ if(!dep.cur||!list.find(c=>c.code===dep.cur))dep.cur=(list.find(c=>c.code===S.cur)||list[0]).code;
+ const c=cfgOf(dep.cur),m=depModes(c);if(!dep.mode||!m.includes(dep.mode))dep.mode=m[0];
+ const opts=dep.mode==='auto'?c.deposit.auto.networks:c.deposit.manual;if(!opts.find(o=>o.id===dep.opt))dep.opt=opts[0].id;return list}
+function depForm(){const list=depInit();if(!list)return ui.empty('lock',t('dep.off'),t('dep.off_t'));
+ const c=cfgOf(dep.cur),m=depModes(c),opts=dep.mode==='auto'?c.deposit.auto.networks:c.deposit.manual,o=opts.find(x=>x.id===dep.opt),f=TM.form;
+ let h='<div class="cursel">'+list.map(x=>'<button class="chip '+(x.code===dep.cur?'on':'')+'" data-act="dcur" data-v="'+x.code+'">'+x.code+'</button>').join('')+'</div>';
+ if(m.length>1)h+='<div class="seg"><button class="'+(dep.mode==='auto'?'on':'')+'" data-act="dmode" data-v="auto">'+t('dep.auto')+'</button><button class="'+(dep.mode==='manual'?'on':'')+'" data-act="dmode" data-v="manual">'+t('dep.manual')+'</button></div>';
+ h+='<div class="fld"><label>'+(dep.mode==='auto'?t('dep.network'):t('dep.method'))+'</label>'+opts.map(x=>'<button class="opt '+(x.id===dep.opt?'on':'')+'" data-act="dopt" data-v="'+esc(x.id)+'"><div class="m"><b>'+esc(x.name)+'</b></div><span class="rd"></span></button>').join('')+'</div>';
+ if(dep.mode==='auto'){h+='<div class="card"><div class="tiny" style="margin-bottom:8px">'+t('dep.address')+'</div><div class="code">'+esc(o.address)+'</div><button class="btn sm sec2" style="margin-top:10px" data-act="copy" data-v="'+esc(o.address)+'">'+ic('copy')+t('copy')+'</button>'+
+  (o.memo?'<div class="tiny" style="margin:14px 0 8px">'+t('dep.memo')+'</div><div class="code">'+esc(o.memo)+'</div><button class="btn sm sec2" style="margin-top:10px" data-act="copy" data-v="'+esc(o.memo)+'">'+ic('copy')+t('copy')+'</button>':'')+'</div><div class="note warn">'+ic('alert')+'<span>'+t('dep.warn',{c:c.code,n:o.name})+'</span></div>'}
+ else h+='<div class="card"><div class="kv"><span>'+t('dep.send_to')+'</span><b>'+esc(o.number)+'</b></div><div class="kv"><span>'+t('dep.acc_type')+'</span><b>'+esc(o.type)+'</b></div><button class="btn sm sec2" style="margin-top:10px" data-act="copy" data-v="'+esc(o.number)+'">'+ic('copy')+t('copy')+'</button></div><div class="note">'+ic('info')+'<span>'+t('dep.manual_t')+'</span></div>';
+ h+=inst(L(S.cfg.deposit.notice),L(S.cfg.deposit.instructions),o.instructions,c.notice);
+ h+=fld('amount',t('amount')+' ('+c.code+')','<input class="inp" inputmode="decimal" autocomplete="off" data-bind="amount" value="'+esc(f.amount||'')+'" placeholder="0">',lim(c.deposit,c.code));
+ h+=fld('txid',t('dep.txid'),'<input class="inp" autocomplete="off" autocapitalize="off" data-bind="txid" value="'+esc(f.txid||'')+'" placeholder="'+esc(t('dep.txid_ph'))+'">');
+ h+='<div class="fld" id="f-proof"><label>'+t('dep.proof')+'</label><label class="upl" for="proof">'+(f.proof?'<img alt="" src="'+f.proof.data+'"><span>'+esc(f.proof.name)+'</span>':ic('image')+'<span>'+t('dep.proof_pick')+'</span>')+'</label><input id="proof" type="file" accept="image/*" hidden><div class="errm"></div></div>';
+ return h+'<button class="btn" data-act="dsubmit">'+ic('check')+t('dep.submit')+'</button>'}
+pages.deposit={nav:'',async render(){depReset();const d=await api.get('/deposits');TM.depItems=d.items;return TM.top(t('deposit'))+'<div id="depbox">'+depForm()+'</div><div class="sec">'+t('dep.requests')+'</div>'+(d.items.length?d.items.map(x=>'<div class="li"><div class="ico in">'+ic('down')+'</div><div class="m"><b>'+money(x.amount,x.currency)+'</b><span>'+esc(x.network)+' · '+esc(dt(x.ts))+(x.message?' · '+esc(x.message):'')+'</span></div><div class="r">'+ui.pill(x.status)+'</div></div>').join(''):ui.empty('inbox',t('dep.none'),t('dep.none_t')))},
+ mount(){const p=$('#proof');if(p)bindProof()}};
+const bindProof=()=>{const p=$('#proof');if(!p)return;p.onchange=()=>{const fl=p.files[0];if(!fl)return;if(fl.size>1500000){ui.field('proof',t('dep.proof_big'));return}const r=new FileReader();r.onload=()=>{TM.form.proof={name:fl.name,data:r.result};redep()};r.readAsDataURL(fl)}};
+const redep=()=>{const b=$('#depbox');if(b){b.innerHTML=depForm();bindProof()}};
+ACT.dcur=d=>{dep.cur=d.v;dep.mode=null;dep.opt=null;redep()};ACT.dmode=d=>{dep.mode=d.v;dep.opt=null;redep()};ACT.dopt=d=>{dep.opt=d.v;redep()};
+ACT.dsubmit=()=>{const c=cfgOf(dep.cur),f=TM.form,a=Number(String(f.amount||'').replace(',','.')),tx=String(f.txid||'').trim();let bad=0;
+ const chk=(id,m)=>{ui.field(id,m);if(m)bad++};
+ const as=String(f.amount||'').trim().replace(',','.'),opt=(dep.mode==='auto'?c.deposit.auto.networks:c.deposit.manual).find(x=>x.id===dep.opt);
+ chk('amount',!okAmt(as,c.decimals)||!(a>0)?t('v.amount'):c.deposit.min>0&&a<c.deposit.min?t('v.min',{n:money(c.deposit.min,c.code)}):c.deposit.max>0&&a>c.deposit.max?t('v.max',{n:money(c.deposit.max,c.code)}):'');
+ chk('txid',/^[A-Za-z0-9_-]{6,128}$/.test(tx)?'':t('v.txid'));
+ chk('proof',(S.cfg.deposit.requireProof||(dep.mode==='manual'&&opt.proofRequired))&&!f.proof?t('v.proof'):'');if(bad)return;
+ ui.confirm({icon:'down',title:t('dep.confirm'),text:t('dep.confirm_t'),kv:[[t('currency'),c.code],[dep.mode==='auto'?t('dep.network'):t('dep.method'),opt.name],[t('amount'),money(a,c.code)],[t('dep.txid'),tx]],label:t('submit'),
+  fn:async()=>{const k='dep';try{await api.post('/deposits',{currency:c.code,mode:dep.mode,network:dep.opt,amount:as,txid:tx,proof:f.proof?f.proof.data:undefined},{idem:TM.idem(k)});TM.idemClear(k);
+   setTimeout(()=>ui.dialog({icon:'clock',tone:'ok',title:t('dep.sent'),text:t('dep.sent_t'),actions:[{label:t('ok')}]}),50);TM.route.refresh(true)}
+   catch(e){if(!isNet(e))TM.idemClear(k);setTimeout(()=>ui.alert('err',t('dep.fail'),api.errMsg(e)),50)}return true}})};
+
+/* ---------- WITHDRAW ---------- */
+let wd;const wdReset=()=>{wd={cur:null,opt:null};TM.form={}};
+const wdFee=(c,a)=>{const w=c.withdraw,fee=Math.round((w.feeFlat+a*w.feePct/100+Number.EPSILON)*Math.pow(10,c.decimals))/Math.pow(10,c.decimals);return{fee,net:a-fee}};
+function wdForm(){const list=curs().filter(c=>c.withdraw.enabled&&c.withdraw.options.length);if(!list.length)return ui.empty('lock',t('wd.off'),t('wd.off_t'));
+ if(!wd.cur||!list.find(c=>c.code===wd.cur))wd.cur=(list.find(c=>c.code===S.cur)||list[0]).code;const c=cfgOf(wd.cur),w=c.withdraw;if(!w.options.find(o=>o.id===wd.opt))wd.opt=w.options[0].id;
+ const avail=(S.wallets.find(x=>x.currency===c.code)||{}).available||0,f=TM.form,op=w.options.find(o=>o.id===wd.opt)||{};
+ return '<div class="cursel">'+list.map(x=>'<button class="chip '+(x.code===wd.cur?'on':'')+'" data-act="wcur" data-v="'+x.code+'">'+x.code+'</button>').join('')+'</div>'+
+ '<div class="card hero tight"><div class="tiny">'+t('available')+'</div><div class="big num" style="font-size:1.6rem">'+fmt(avail,c.code)+'<small>'+c.code+'</small></div></div>'+
+ '<div class="fld"><label>'+t('dep.method')+'</label>'+w.options.map(x=>'<button class="opt '+(x.id===wd.opt?'on':'')+'" data-act="wopt" data-v="'+esc(x.id)+'"><div class="m"><b>'+esc(x.name)+'</b></div><span class="rd"></span></button>').join('')+'</div>'+
+ fld('address',op.label||t('wd.address'),'<input class="inp" autocomplete="off" autocapitalize="off" data-bind="address" value="'+esc(f.address||'')+'" placeholder="'+esc(op.label||t('wd.address_ph'))+'">')+
+ fld('amount',t('amount')+' ('+c.code+')','<div class="amt"><input class="inp" inputmode="decimal" autocomplete="off" data-bind="amount" data-live="wsum" value="'+esc(f.amount||'')+'" placeholder="0"><button class="max" type="button" data-act="wmax">MAX</button></div>',lim(w,c.code))+
+ '<div class="card tight" id="wsum">'+wdSum()+'</div>'+inst(L(S.cfg.withdraw.notice),L(S.cfg.withdraw.instructions),op.instructions,L(S.cfg.withdraw.eta))+'<div class="note">'+ic('info')+'<span>'+t('wd.rule')+'</span></div><button class="btn" data-act="wsubmit">'+ic('up')+t('wd.submit')+'</button>'}
+function wdSum(){const c=cfgOf(wd.cur),a=Number(String(TM.form.amount||'').replace(',','.'))||0,r=a>0?wdFee(c,a):{fee:0,net:0};return '<div class="kv"><span>'+t('fee')+' ('+c.withdraw.feePct+'% + '+c.withdraw.feeFlat+')</span><b class="num">'+money(r.fee,c.code)+'</b></div><div class="kv"><span>'+t('you_receive')+'</span><b class="num">'+money(Math.max(0,r.net),c.code)+'</b></div>'}
+pages.withdraw={nav:'',async render(){wdReset();const [w,l]=await Promise.all([api.get('/wallet'),api.get('/withdrawals')]);S.wallets=w.wallets;
+ return TM.top(t('withdraw'))+'<div id="wdbox">'+wdForm()+'</div><div class="sec">'+t('wd.requests')+'</div>'+(l.items.length?l.items.map(x=>'<div class="li"><div class="ico out">'+ic('up')+'</div><div class="m"><b>'+money(x.amount,x.currency)+'</b><span>'+esc(x.network)+' · '+esc(dt(x.ts))+(x.reason?' · '+esc(x.reason):'')+'</span></div><div class="r">'+ui.pill(x.status)+'</div></div>').join(''):ui.empty('inbox',t('wd.none'),t('wd.none_t')))}};
+const rewd=()=>{const b=$('#wdbox');if(b)b.innerHTML=wdForm()};
+ACT.wcur=d=>{wd.cur=d.v;wd.opt=null;TM.form.amount='';rewd()};ACT.wopt=d=>{wd.opt=d.v;rewd()};
+ACT.wsum=()=>{const e=$('#wsum');if(e)e.innerHTML=wdSum()};
+ACT.wmax=()=>{const c=cfgOf(wd.cur),av=(S.wallets.find(x=>x.currency===c.code)||{}).available||0;TM.form.amount=(c.withdraw.max>0?Math.min(av,c.withdraw.max):av).toFixed(c.decimals);rewd()};
+ACT.wsubmit=()=>{const c=cfgOf(wd.cur),w=c.withdraw,f=TM.form,a=Number(String(f.amount||'').replace(',','.')),ad=String(f.address||'').trim(),av=(S.wallets.find(x=>x.currency===c.code)||{}).available||0;let bad=0;
+ const chk=(id,m)=>{ui.field(id,m);if(m)bad++};
+ const opx=w.options.find(o=>o.id===wd.opt)||{};let okA=ad.length>=4&&ad.length<=200;if(okA&&opx.pattern){try{okA=new RegExp(opx.pattern).test(ad)}catch(e){}}
+ chk('address',okA?'':t('v.address'));
+ const as=String(f.amount||'').trim().replace(',','.');
+ const r=a>0?wdFee(c,a):{fee:0,net:0};
+ chk('amount',!okAmt(as,c.decimals)||!(a>0)?t('v.amount'):w.min>0&&a<w.min?t('v.min',{n:money(w.min,c.code)}):w.max>0&&a>w.max?t('v.max',{n:money(w.max,c.code)}):a>av?t('v.balance'):r.net<=0?t('v.fee'):'');if(bad)return;
+ const opt=w.options.find(o=>o.id===wd.opt);
+ ui.confirm({icon:'up',title:t('wd.confirm'),text:t('wd.confirm_t'),kv:[[t('currency'),c.code],[t('dep.network'),opt.name],[t('wd.to'),ad],[t('amount'),money(a,c.code)],[t('fee'),money(r.fee,c.code)],[t('you_receive'),money(r.net,c.code)]],label:t('submit'),
+  fn:async()=>{const k='wd';try{await api.post('/withdrawals',{currency:c.code,network:wd.opt,address:ad,amount:as},{idem:TM.idem(k)});TM.idemClear(k);
+   setTimeout(()=>ui.dialog({icon:'clock',tone:'ok',title:t('wd.sent'),text:t('wd.sent_t'),actions:[{label:t('ok')}]}),50);TM.route.refresh(true)}
+   catch(e){if(!isNet(e))TM.idemClear(k);setTimeout(()=>ui.alert('err',t('wd.fail'),api.errMsg(e)),50)}return true}})};
+
+/* ---------- REFERRAL ---------- */
+pages.referral={nav:'',async render(){const r=await api.get('/referral');if(!r.enabled)return TM.top(t('referral'))+ui.empty('lock',t('ref.off'),t('ref.off_t'));
+ const cm=r.commission,bn=r.bonus,cs=cm?(cm.type==='percent'?cm.value+'%':money(cm.value,cm.currency)):'—',how=L(r.instructions)||[bn?t('ref.how_bonus',{b:money(bn.amount,bn.currency)}):'',cm?t('ref.how_comm',{c:cs}):''].filter(Boolean).join(' ');
+ const link='https://t.me/'+(S.cfg.app.botUsername||TM.CFG.BOT_USERNAME)+'?startapp=ref_'+r.code;TM.refLink=link;
+ return TM.top(t('referral'))+'<div class="card hero"><div class="tiny">'+t('ref.code')+'</div><div class="big num" style="font-size:1.7rem">'+esc(r.code)+'</div><div class="code" style="margin-top:12px">'+esc(link)+'</div><div class="btns" style="margin-top:12px"><button class="btn sec2" data-act="copy" data-v="'+esc(link)+'">'+ic('copy')+t('copy')+'</button><button class="btn" data-act="refshare">'+ic('share')+t('share')+'</button></div></div>'+
+ '<div class="grid2"><div class="stat"><span>'+t('ref.count')+'</span><b>'+r.count+'</b></div><div class="stat"><span>'+t('ref.commission')+'</span><b>'+esc(cs)+'</b></div></div>'+(how?'<div class="note or" style="margin-top:14px">'+ic('gift')+'<span>'+esc(how)+'</span></div>':'')+
+ '<div class="sec">'+t('ref.earned')+'</div><div class="card tight">'+(r.earnings.map(e=>'<div class="kv"><span>'+e.currency+'</span><b class="num">'+money(e.amount,e.currency)+'</b></div>').join('')||'—')+'</div>'+
+ '<div class="sec">'+t('ref.list')+'</div>'+(r.referrals.length?r.referrals.map(x=>'<div class="li"><div class="avatar">'+esc(x.name.charAt(0))+'</div><div class="m"><b>'+esc(x.name)+'</b><span>'+esc(TM.d(x.joinedAt))+'</span></div><div class="r">'+ui.pill(x.status)+'</div></div>').join(''):ui.empty('users',t('ref.none'),t('ref.none_t')))}};
+ACT.refshare=()=>TM.tg.share(TM.refLink,t('ref.share_text'));
+
+/* ---------- HISTORY ---------- */
+let H={type:'all',cur:'all',status:'all',items:[],total:0};
+const hq=o=>'/history?type='+H.type+'&currency='+H.cur+'&status='+H.status+'&offset='+o+'&limit=20';
+const hList=()=>H.items.length?H.items.map(TM.txRow).join('')+(H.items.length<H.total?'<button class="btn sec2" data-act="hmore">'+t('load_more')+'</button>':''):ui.empty('inbox',t('empty.tx'),t('empty.tx_t'));
+pages.history={nav:'',async render(){const r=await api.get(hq(0));H.items=r.items;H.total=r.total;r.items.forEach(x=>TM.txCache[x.id]=x);
+ const seg=(k,vals)=>'<div class="seg">'+vals.map(v=>'<button class="'+(H[k]===v?'on':'')+'" data-act="hf" data-k="'+k+'" data-v="'+v+'">'+t(k==='type'?(v==='all'?'all':'tx.'+v):v==='all'?'all':'st.'+v)+'</button>').join('')+'</div>';
+ return TM.top(t('history'))+seg('type',['all','deposit','withdraw','mining','purchase','referral','adjustment','refund'])+seg('status',['all','pending','completed','rejected'])+'<div class="fld"><select class="sel" data-act="hfc" aria-label="'+t('currency')+'"><option value="all">'+t('all')+'</option>'+curs().map(c=>'<option value="'+c.code+'" '+(H.cur===c.code?'selected':'')+'>'+c.code+'</option>').join('')+'</select></div><div id="hlist">'+hList()+'</div>'}};
+ACT.hf=d=>{H[d.k]=d.v;TM.route.refresh(true)};
+document.addEventListener('change',e=>{if(e.target.dataset&&e.target.dataset.act==='hfc'){H.cur=e.target.value;TM.route.refresh(true)}});
+ACT.hmore=async(d,el)=>{ui.busy(el,true);try{const r=await api.get(hq(H.items.length));H.items=H.items.concat(r.items);H.total=r.total;r.items.forEach(x=>TM.txCache[x.id]=x);$('#hlist').innerHTML=hList()}catch(e){ui.busy(el,false);ui.toast(api.errMsg(e),'err')}};
+
+/* ---------- LEADERBOARD ---------- */
+let lbC=null;
+pages.leaderboard={nav:'',async render(){if(!S.cfg.leaderboard.enabled)return TM.top(t('leaderboard'))+ui.empty('lock',t('lb.off'),t('lb.off_t'));const cats=S.cfg.leaderboard.categories||[];if(!lbC||!cats.includes(lbC))lbC=cats[0];const r=await api.get('/leaderboard?category='+encodeURIComponent(lbC));
+ const vl=x=>r.label==='rewards'?fmt(x,r.currency)+' '+r.currency:String(Math.round(x));
+ return TM.top(L(r.title)||t('leaderboard'))+(L(r.description)?'<div class="tiny" style="margin-bottom:10px">'+esc(L(r.description))+'</div>':'')+(cats.length>1?'<div class="seg">'+cats.map(c=>'<button class="'+(lbC===c?'on':'')+'" data-act="lbp" data-v="'+c+'">'+t('lb.cat.'+c)+'</button>').join('')+'</div>':'')+
+ '<div class="card hero tight"><div class="row between"><div><div class="tiny">'+t('lb.your')+'</div><div class="big" style="font-size:1.6rem">'+(r.me.rank?'#'+r.me.rank:'—')+'</div></div><div style="text-align:right"><div class="tiny">'+t('lb.val.'+r.label)+'</div><b class="num">'+vl(r.me.value)+'</b></div></div></div>'+
+ (r.rows.length?r.rows.map(x=>'<div class="lb '+(x.rank<=3?'top ':'')+(x.me?'me':'')+'"><div class="rk">'+(x.rank<=3?['🥇','🥈','🥉'][x.rank-1]:x.rank)+'</div><div class="grow"><b>'+esc(x.me?t('you'):x.name)+'</b></div><b class="num">'+vl(x.value)+'</b></div>').join(''):ui.empty('trophy',t('lb.empty'),t('lb.empty_t')))}};
+ACT.lbp=d=>{lbC=d.v;TM.route.refresh(true)};
+
+/* ---------- NOTIFICATIONS ---------- */
+let nCache={};
+pages.notifications={nav:'',async render(){const r=await api.get('/notifications');S.unread=r.unread;r.items.forEach(n=>nCache[n.id]=n);
+ return TM.top(t('nav.notifications'),r.unread?'<button class="btn sm sec2" data-act="nread">'+t('mark_all')+'</button>':'')+(r.items.length?r.items.map(n=>'<button class="li '+(n.read?'':'unread')+'" data-act="nopen" data-id="'+esc(n.id)+'"><div class="ico or">'+(n.emoji?esc(n.emoji):ic('bell'))+'</div><div class="m"><b>'+esc(L(n.title))+'</b><span>'+esc(L(n.text))+'</span></div><div class="r tiny">'+esc(TM.ago(n.ts))+'</div></button>').join(''):ui.empty('bell',t('empty.notif'),t('empty.notif_t')))}};
+ACT.nread=async()=>{try{const r=await api.post('/notifications/read',{all:true});S.unread=r.unread;TM.route.refresh(true)}catch(e){ui.toast(api.errMsg(e),'err')}};
+ACT.nopen=async d=>{const n=nCache[d.id];if(!n)return;ui.sheet('<h3>'+ic('bell')+esc(L(n.title))+'</h3><div class="sub">'+esc(dt(n.ts))+'</div><p style="white-space:pre-wrap">'+esc(L(n.text))+'</p><div class="btns"><button class="btn sec2" data-act="closeov">'+t('close')+'</button>'+(/^[a-z-]{3,20}$/.test(n.page||'')?'<button class="btn" data-go="#/'+n.page+'">'+t('open')+'</button>':'')+'</div>');
+ if(!n.read){try{const r=await api.post('/notifications/read',{ids:[n.id]});S.unread=r.unread;n.read=true;TM.route.refresh(true)}catch(e){}}};
+
+/* ---------- SUPPORT ---------- */
+let spTab='tickets',sp={};
+pages.support={nav:'',async render(){const app=S.cfg.app;let body='';
+ if(spTab==='tickets'){const r=await api.get('/support/tickets');body=(r.items.length?r.items.map(x=>'<button class="li" data-go="#/support/'+esc(x.id)+'"><div class="ico or">'+ic('msg')+'</div><div class="m"><b>'+esc(x.subject)+'</b><span>'+esc(catL(x.category))+' · '+esc(TM.ago(x.updatedAt))+'</span></div><div class="r">'+ui.pill(x.status)+'</div></button>').join(''):ui.empty('msg',t('sp.none'),t('sp.none_t')))+'<button class="btn" style="margin-top:8px" data-go="#/support-new">'+ic('plus')+t('sp.new')+'</button>'}
+ else if(spTab==='faq')body=!(S.cfg.faq||[]).length?ui.empty('help',t('faq.none'),''):S.cfg.faq.map(f=>'<details class="card tight faq"><summary>'+esc(L(f.q))+'</summary><p>'+esc(L(f.a))+'</p></details>').join('');
+ else{const sc=S.cfg.support,ct=sc.contact||{};body='<div class="card"><div class="kv"><span>'+t('sp.hours')+'</span><b>'+esc(sc.hours||'—')+'</b></div>'+(ct.email?'<div class="kv"><span>Email</span><b>'+esc(ct.email)+'</b></div>':'')+'</div>'+inst(L(sc.notice),L(sc.instructions))+'<div class="btns">'+((ct.telegram||app.supportUrl)?'<button class="btn" data-act="link" data-tg="1" data-v="'+esc(ct.telegram||app.supportUrl)+'">'+ic('send')+t('sp.contact')+'</button>':'')+(app.channelUrl?'<button class="btn sec2" data-act="link" data-tg="1" data-v="'+esc(app.channelUrl)+'">'+ic('globe')+t('sp.channel')+'</button>':'')+'</div>'}
+ return TM.top(t('support'))+'<div class="seg">'+['tickets','faq','contact'].map(k=>'<button class="'+(spTab===k?'on':'')+'" data-act="spt" data-v="'+k+'">'+t('sp.'+k)+'</button>').join('')+'</div>'+body}};
+ACT.spt=d=>{spTab=d.v;TM.route.refresh(true)};
+pages['support-new']={nav:'',async render(){TM.form={};return TM.top(t('sp.new'))+fld('cat',t('sp.category'),'<select class="sel" data-bind="cat">'+S.cfg.support.categories.map(c=>'<option value="'+c+'">'+esc(catL(c))+'</option>').join('')+'</select>')+fld('subj',t('sp.subject'),'<input class="inp" maxlength="120" data-bind="subj" placeholder="'+esc(t('sp.subject'))+'">')+fld('msg',t('sp.message'),'<textarea class="inp" maxlength="2000" data-bind="msg" placeholder="'+esc(t('sp.message_ph'))+'"></textarea>')+'<button class="btn" data-act="spsend">'+ic('send')+t('submit')+'</button>'}};
+ACT.spsend=async(d,el)=>{const f=TM.form;let bad=0;const chk=(id,m)=>{ui.field(id,m);if(m)bad++};
+ chk('subj',(f.subj||'').trim().length<3?t('v.required'):'');chk('msg',(f.msg||'').trim().length<5?t('v.required'):'');if(bad)return;
+ ui.busy(el,true);const k='ticket';try{await api.post('/support/tickets',{category:f.cat||S.cfg.support.categories[0],subject:f.subj.trim(),message:f.msg.trim()},{idem:TM.idem(k)});TM.idemClear(k);ui.toast(t('sp.sent'),'ok');spTab='tickets';location.hash='#/support'}
+ catch(e){ui.busy(el,false);if(!isNet(e))TM.idemClear(k);ui.alert('err',t('state.error'),api.errMsg(e))}};
+pages['ticket']={nav:'',async render(p){const r=await api.get('/support/tickets/'+encodeURIComponent(p[0]));const x=r.ticket;TM.form={};sp.id=x.id;
+ return TM.top(x.subject)+'<div class="row between" style="margin-bottom:12px"><span class="tiny">'+esc(catL(x.category))+'</span>'+ui.pill(x.status)+'</div><div id="thread">'+x.messages.map(m=>'<div class="msg '+(m.from==='me'?'me':'')+'">'+esc(m.text)+'<small>'+(m.from==='me'?esc(t('you')):esc(t('support')))+' · '+esc(dt(m.ts))+'</small></div>').join('')+'</div>'+
+ (x.status==='closed'?'<div class="note">'+ic('lock')+'<span>'+t('sp.closed')+'</span></div>':'<div class="row" style="margin-top:12px"><input class="inp" maxlength="2000" data-bind="reply" placeholder="'+esc(t('sp.reply'))+'"><button class="ibtn" style="width:48px;height:48px" data-act="spreply" aria-label="'+t('send')+'">'+ic('send')+'</button></div>')}};
+ACT.spreply=async(d,el)=>{const m=(TM.form.reply||'').trim();if(!m)return;ui.busy(el,true);try{await api.post('/support/tickets/'+sp.id+'/messages',{message:m});TM.route.refresh(true)}catch(e){ui.busy(el,false);ui.toast(api.errMsg(e),'err')}};
+
+/* ---------- PROFILE / SETTINGS / ACCOUNT / LEGAL ---------- */
+const row=(ico,label,go,extra)=>'<button class="li" '+(go?'data-go="'+go+'"':'data-act="'+extra+'"')+'><div class="ico">'+ic(ico)+'</div><div class="m"><b>'+esc(label)+'</b></div>'+ic('chev','chev')+'</button>';
+const legalRows=()=>{const lg=S.cfg.legal||{},ic2={terms:'file',privacy:'lock',risk:'alert',about:'info'};return Object.keys(lg).filter(k=>L(lg[k].body)).map(k=>row(ic2[k]||'file',L(lg[k].title)||k,'#/legal/'+k)).join('')};
+const langSeg=()=>{const en=(S.cfg.languages&&S.cfg.languages.enabled)||['en','bn'];return en.length<2?'':'<div class="seg" style="margin:0">'+en.map(l=>'<button class="'+(S.lang===l?'on':'')+'" data-act="lang" data-v="'+l+'">'+(l==='bn'?'বাংলা':'English')+'</button>').join('')+'</div>'};
+pages.profile={nav:'profile',root:true,async render(){const me=S.me=await api.get('/me');
+ return '<div class="topbar"><h1>'+t('nav.profile')+'</h1></div><div class="card hero" style="text-align:center"><div class="avatar lg" style="margin:0 auto 12px">'+TM.avatar(me)+'</div><b style="font-size:1.1rem">'+esc(me.name)+'</b><div class="tiny">'+(me.username?'@'+esc(me.username)+' · ':'')+'ID '+esc(me.id)+'</div><div style="margin-top:10px">'+ui.pill(me.status)+'</div></div><div class="menu">'+
+ row('user',t('account'),'#/account')+row('settings',t('settings'),'#/settings')+(TM.featOn('notifications')?row('bell',t('nav.notifications'),'#/notifications'):'')+(TM.featOn('history')?row('history',t('history'),'#/history'):'')+(TM.featOn('referral')?row('users',t('referral'),'#/referral'):'')+(TM.featOn('leaderboard')?row('trophy',t('leaderboard'),'#/leaderboard'):'')+(TM.featOn('support')?row('help',t('support'),'#/support'):'')+legalRows()+'</div><div class="tiny" style="text-align:center;margin-top:10px">'+esc(S.cfg.app.name)+' v'+TM.CFG.VERSION+'</div>'}};
+pages.account={nav:'',async render(){const me=S.me=await api.get('/me');return TM.top(t('account'))+'<div class="card"><div class="kv"><span>'+t('acc.name')+'</span><b>'+esc(me.name)+'</b></div><div class="kv"><span>'+t('acc.username')+'</span><b>'+(me.username?'@'+esc(me.username):'—')+'</b></div><div class="kv"><span>ID</span><b>'+esc(me.id)+'</b></div><div class="kv"><span>Telegram ID</span><b>'+esc(me.tgId)+'</b></div><div class="kv"><span>'+t('acc.joined')+'</span><b>'+esc(TM.d(me.joinedAt))+'</b></div><div class="kv"><span>'+t('acc.status')+'</span><b>'+ui.pill(me.status)+'</b></div></div>'}};
+pages.settings={nav:'',async render(){const me=S.me=await api.get('/me');const hp=TM.ls.get('tm_haptic',true);
+ return TM.top(t('settings'))+'<div class="card"><div class="card-t">'+ic('globe')+t('language')+'</div>'+langSeg()+'</div>'+
+ '<div class="card"><div class="row between" style="padding:6px 0"><div><b>'+t('set.notif')+'</b><div class="tiny">'+t('set.notif_t')+'</div></div><button class="tgl '+(me.notif?'on':'')+'" data-act="tnotif" role="switch" aria-checked="'+!!me.notif+'" aria-label="'+t('set.notif')+'"></button></div><div class="divider"></div><div class="row between" style="padding:6px 0"><div><b>'+t('set.haptic')+'</b><div class="tiny">'+t('set.haptic_t')+'</div></div><button class="tgl '+(hp?'on':'')+'" data-act="thap" role="switch" aria-checked="'+hp+'" aria-label="'+t('set.haptic')+'"></button></div></div>'}};
+ACT.lang=async d=>{TM.setLang(d.v);try{await api.patch('/me',{lang:d.v})}catch(e){}TM.renderNav();TM.route.refresh(true)};
+ACT.tnotif=async()=>{try{S.me=await api.patch('/me',{notif:!S.me.notif});TM.route.refresh(true)}catch(e){ui.toast(api.errMsg(e),'err')}};
+ACT.thap=()=>{TM.ls.set('tm_haptic',!TM.ls.get('tm_haptic',true));TM.route.refresh(true)};
+pages.legal={nav:'',async render(p){const lg=S.cfg.legal||{},k=lg[p[0]]?p[0]:Object.keys(lg)[0],d=lg[k]||{};return TM.top(L(d.title)||t('legal.terms'))+'<div class="card" style="white-space:pre-wrap;font-size:.88rem;color:var(--silver)">'+esc(L(d.body)||t('legal.none'))+'</div>'}};
+
+})();
+
+(function(){'use strict';
+const TM=window.TM,{t,esc,ic,$}=TM,S=TM.S,ui=TM.ui,ACT=TM.ACT,api=TM.api,pages=TM.pages;
+const view=()=>$('#view');
+const ROUTES=[[/^\/home$/,'home'],[/^\/mining$/,'mining'],[/^\/plans$/,'plans'],[/^\/wallet$/,'wallet'],[/^\/deposit$/,'deposit'],[/^\/withdraw$/,'withdraw'],[/^\/referral$/,'referral'],[/^\/history$/,'history'],[/^\/leaderboard$/,'leaderboard'],[/^\/notifications$/,'notifications'],[/^\/support$/,'support'],[/^\/support-new$/,'support-new'],[/^\/support\/([\w-]+)$/,'ticket'],[/^\/profile$/,'profile'],[/^\/account$/,'account'],[/^\/settings$/,'settings'],[/^\/legal\/(\w+)$/,'legal']];
+const NAV0=[['home','home','nav.home'],['mining','cpu','nav.mining'],['plans','layers','nav.plans'],['wallet','wallet','nav.wallet'],['profile','user','nav.profile']];
+const featOn=k=>{const f=((S.cfg||{}).features||{})[k];return !f||(f.enabled!==false&&f.visible!==false)};
+const navList=()=>NAV0.filter(x=>{const f=((S.cfg||{}).features||{})[x[0]];return !f||(f.enabled!==false&&f.visible!==false&&f.nav!==false)});
+TM.featTitle=(k,def)=>{const f=((S.cfg||{}).features||{})[k],ti=f&&f.title;if(ti){const v=ti[S.lang]||'';if(v&&!(S.lang==='bn'&&ti.bn===ti.en))return v}return def};
+TM.featOn=featOn;
+let cur={name:'home',params:[]},tok=0,booted=false;
+TM.renderNav=()=>{const n=$('#nav');n.innerHTML=navList().map(x=>{const lb=TM.featTitle(x[0],t(x[2]));return '<button data-go="#/'+x[0]+'" data-n="'+x[0]+'" aria-label="'+esc(lb)+'">'+ic(x[1])+'<span>'+esc(lb)+'</span></button>'}).join('');setNav()};
+const setNav=()=>{const p=pages[cur.name];const n=$('#nav');n.hidden=!(p&&p.nav);view().classList.toggle('nonav',!(p&&p.nav));n.querySelectorAll('button').forEach(b=>b.classList.toggle('on',p&&b.dataset.n===p.nav))};
+const fullState=e=>{const c=e&&e.code;
+ if(c==='maintenance'){const a=(S.cfg||{}).app||{},m=TM.L(a.maintenanceMessage);return ui.full('tool',t('state.maint'),(m||t('state.maint_t'))+(a.maintenanceEta?' · '+a.maintenanceEta:''),t('retry'),'retryboot')}
+ if(c==='feature_disabled')return ui.full('lock',t('state.featoff'),t('err.feature_disabled'),t('nav.home'),'gohome');
+ if(c==='unauthorized'&&!TM.tg.initData())return ui.full('lock',t('state.tgonly'),t('state.tgonly_t'));
+ if(c==='suspended')return ui.full('ban',t('state.susp'),t('state.susp_t'),t('support'),'suspsupport','err');
+ if(c==='unauthorized')return ui.full('lock',t('state.auth'),t('state.auth_t'),t('retry'),'retryboot','err');return null};
+async function render(soft){const my=++tok;let name=cur.name,p=pages[name];
+ if(!p){view().innerHTML=ui.full('alert',t('state.404'),t('state.404_t'),t('nav.home'),'gohome');setNav();TM.tg.setBack(null);return}
+ setNav();TM.tg.setBack(p.root?null:ACT.back);if(!soft)ui.close();
+ const y=window.scrollY;if(!soft){view().innerHTML=TM.top('')&&(p.root?'':'<div class="topbar"><button class="ibtn" data-act="back">'+ic('back')+'</button></div>')+'<div class="sk card"></div>'+ui.skel(3);window.scrollTo(0,0)}
+ try{const h=await p.render(cur.params);if(my!==tok)return;view().innerHTML=h;if(p.mount)p.mount();if(soft)window.scrollTo(0,y);
+  if(name==='home')quietUnread()}
+ catch(e){if(my!==tok)return;console.warn(e);const f=fullState(e);view().innerHTML=f||((p.root?'':'<div class="topbar"><button class="ibtn" data-act="back">'+ic('back')+'</button></div>')+ui.err(e))}}
+async function quietUnread(){try{const r=await api.get('/notifications');if(r.unread!==S.unread){S.unread=r.unread;if(cur.name==='home')render(true)}}catch(e){}}
+function parse(){const h=(location.hash||'#/home').slice(1)||'/home';for(const r of ROUTES){const m=h.match(r[0]);if(m){cur={name:r[1],params:m.slice(1)};return}}cur={name:'__404',params:[]}}
+TM.route={refresh:soft=>render(!!soft)};
+window.addEventListener('hashchange',()=>{parse();render(false)});
+ACT.retry=()=>render(false);ACT.gohome=()=>{location.hash='#/home'};
+ACT.retryboot=()=>location.reload();ACT.suspsupport=()=>{const u=((S.cfg||{}).app||{}).supportUrl;if(u)TM.tg.openTG(u)};
+/* countdown ticker (visual only — the server decides if a claim is allowed) */
+setInterval(()=>{const now=TM.now();let rl=false;
+ TM.$$('.cd[data-t]').forEach(el=>{const r=+el.dataset.t-now;if(r<=0){if(el.textContent!==t('ready'))el.textContent=t('ready');if(el.dataset.rl==='1'){el.dataset.rl='0';rl=true}}else el.textContent=TM.hms(r)});
+ TM.$$('.ring[data-t]').forEach(el=>{const s=+el.dataset.s,e=+el.dataset.t;el.style.setProperty('--p',Math.max(0,Math.min(100,(now-s)/(e-s)*100)))});
+ if(rl)render(true)},1000);
+window.addEventListener('offline',()=>ui.toast(t('state.offline'),'err'));window.addEventListener('online',()=>{ui.toast(t('online'),'ok');render(true)});
+function demobar(){const d=$('#demo');if(!TM.DEMO){d.innerHTML='';return}d.innerHTML=''}
+TM.demobar=demobar;
+async function boot(){
+ TM.tg.init();
+ const done0=()=>{const s=$('#splash');if(s){s.style.opacity=0;setTimeout(()=>s.remove(),250)}};
+ {const sv=TM.ls.get('tm_lang',null);TM.S.lang=sv||((TM.tg.user().language_code||'')==='bn'?'bn':'en');document.documentElement.lang=TM.S.lang}
+ if(!TM.CFG.API_BASE){$('#nav').hidden=true;view().innerHTML=ui.full('tool',t('state.cfg'),t('state.cfg_t'));return done0()}
+ TM.renderNav();
+ const done=()=>{const s=$('#splash');if(s){s.style.opacity=0;setTimeout(()=>s.remove(),250)}};
+ try{S.cfg=await api.get('/config');demobar();
+  {const lg=S.cfg.languages||{},en=lg.enabled&&lg.enabled.length?lg.enabled:['en','bn'];let l=TM.ls.get('tm_lang',null);if(!l)l=(TM.tg.user().language_code==='bn'&&en.includes('bn'))?'bn':(lg.default||'en');if(!en.includes(l))l=lg.default&&en.includes(lg.default)?lg.default:en[0];TM.S.lang=l;document.documentElement.lang=l;TM.renderNav()}
+  if(S.cfg.app.maintenance){view().innerHTML=fullState({code:'maintenance'});$('#nav').hidden=true;return done()}
+  const a=await api.post('/auth/telegram',{initData:TM.tg.initData(),user:TM.tg.user()});api.token=a&&a.token||null;
+  S.me=await api.get('/me');
+  if(S.me.status==='suspended'){view().innerHTML=fullState({code:'suspended'});$('#nav').hidden=true;return done()}
+ }catch(e){console.warn(e);const f=fullState(e);view().innerHTML=f||ui.full(e.code==='network'||e.code==='timeout'?'wifioff':'alert',t(e.code==='network'||e.code==='timeout'?'state.offline':'state.error'),e.code==='network'||e.code==='timeout'?t('state.offline_t'):api.errMsg(e),t('retry'),'retryboot');$('#nav').hidden=true;demobar();return done()}
+ booted=true;if(!location.hash)location.hash='#/home';parse();await render(false);done()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+
+
+</script></body></html>
